@@ -2,8 +2,13 @@
 
 namespace MapProject
 {
-
-    public class Class1 : TestClass
+    public class Class1
     {
+        private string a
+        {
+            get;
+            set;
+        }
+            
     }
 }
