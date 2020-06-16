@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29709.97
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapProject", "MapProject.csproj", "{789DBA5C-ED69-42F9-90FD-33647BF8FE7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapProject", "MapProject.csproj", "{789DBA5C-ED69-42F9-90FD-33647BF8FE7E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Map.Test.Console", "..\Map.Test.Console\Map.Test.Console.csproj", "{36E0B515-1BFD-42F9-A174-1D9C521EED17}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{789DBA5C-ED69-42F9-90FD-33647BF8FE7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{789DBA5C-ED69-42F9-90FD-33647BF8FE7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{789DBA5C-ED69-42F9-90FD-33647BF8FE7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36E0B515-1BFD-42F9-A174-1D9C521EED17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36E0B515-1BFD-42F9-A174-1D9C521EED17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36E0B515-1BFD-42F9-A174-1D9C521EED17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36E0B515-1BFD-42F9-A174-1D9C521EED17}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
