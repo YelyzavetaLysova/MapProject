@@ -6,6 +6,12 @@ namespace MapProject.Model
 {
     public class Point
     {
+        public Region Parent
+        {
+            get;
+            set;
+        }
+
         public int X
         {
             get;

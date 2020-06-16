@@ -6,6 +6,7 @@ namespace MapProject.Model
 {
     public class Region
     {
+
         public List<Region> InnerRegions
         {
             get;
