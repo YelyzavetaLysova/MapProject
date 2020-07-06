@@ -2,36 +2,74 @@
 using System.Collections.Generic;
 using MapProject.Model;
 using System.Linq;
-
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using System.IO;
 
 namespace MapProject
 {
-    public class MapParser
+    public class MapParser : IMapParser
     {
 
         private MapProject.Model.Point[,] _points;
 
-        public Model.Region ParseImage(System.Drawing.Bitmap img)
+        public Model.Region ParseImage(Image<Rgba32> img)
         {
-            this._points = new Point[img.Width, img.Height];
 
-            for (int i = 0; i < img.Width; i++)
+            this._points = new MapProject.Model.Point[img.Width, img.Height];
+
+            for (int y = 0; y < img.Height; y++)
             {
-                for (int j = 0; j < img.Height; j++)
+                Span<Rgba32> pixelsRow = img.GetPixelRowSpan(y);
+
+                for (int x = 0; x < img.Width; x++)
                 {
-                    this._points[i, j] = new Point(i, j, this.isBorder(img.GetPixel(i, j)));
+                    this._points[x, y] = new MapProject.Model.Point(x, y, this.isBorder(new Color(pixelsRow[x])));
                 }
             }
-           
-            Point p = this.GetRandomPoint();
+
+            using (var imageToSave = new Image<Rgba32>(this._points.GetLength(0), this._points.GetLength(1)))
+            {
+
+                for (int y = 0; y < this._points.GetLength(1); y++)
+                {
+                    Span<Rgba32> pixelsRow = imageToSave.GetPixelRowSpan(y);
+
+                    for (int x = 0; x < this._points.GetLength(0); x++)
+                    {
+
+                        if (this._points[x, y].IsBorder)
+                        {
+                            pixelsRow[x] = Color.Black;
+                        }
+                        else
+                        {
+                            pixelsRow[x] = Color.White;
+                        }
+
+                    }
+                }
+
+                using (Stream s = new FileStream(Environment.CurrentDirectory + "/savedimage.jpeg", FileMode.Create))
+                {
+                    imageToSave.SaveAsJpeg(s);
+
+                }
+            }
+
+            MapProject.Model.Point p = this.GetRandomPoint();
+
+
 
             //region.Points.Add(p);
 
-            this.ProcessPoint(p);
+            //this.ProcessPoint(p);
 
+
+            return new Region();
         }
 
-        private void ProcessPoint(Point point, Region region = null)
+        private void ProcessPoint(MapProject.Model.Point point, Region region = null)
         {
             if (region == null)
             {
@@ -62,7 +100,7 @@ namespace MapProject
                 }
             }
 
-            foreach (Point p in this.GetAroundPoints(point))
+            foreach (MapProject.Model.Point p in this.GetAroundPoints(point))
             {
                 this.ProcessPoint(p, region);
             }
@@ -82,9 +120,9 @@ namespace MapProject
            region2 = null;
         }
 
-        private bool isBorder(System.Drawing.Color point)
+        private bool isBorder(Color point)
         {
-            if (point.Name == "White")
+            if (point == Color.White)
             {
                 return false;
             }
@@ -92,12 +130,12 @@ namespace MapProject
             return true;
         }
 
-        private Point GetRandomPoint()
+        private MapProject.Model.Point GetRandomPoint()
         {
 
             Random r = new Random();
 
-            Point result;
+            MapProject.Model.Point result;
 
             do
             {
@@ -109,9 +147,9 @@ namespace MapProject
 
         }
 
-        public IEnumerable<Point> GetAroundPoints(Point p)
+        public IEnumerable<MapProject.Model.Point> GetAroundPoints(MapProject.Model.Point p)
         {
-            List<Point> result = new List<Point>();
+            List<MapProject.Model.Point> result = new List<MapProject.Model.Point>();
 
             if (p.X != 0)
             {
