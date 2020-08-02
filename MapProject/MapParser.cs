@@ -28,239 +28,83 @@ namespace MapProject
                 }
             }
 
+            using (var imageToSave = new Image<Rgba32>(this._points.GetLength(0), this._points.GetLength(1)))
+            {
 
-            //using (var imageToSave = new Image<Rgba32>(this._points.GetLength(0), this._points.GetLength(1)))
-            //{
+                for (int y = 0; y < this._points.GetLength(1); y++)
+                {
+                    Span<Rgba32> pixelsRow = imageToSave.GetPixelRowSpan(y);
 
-            //    for (int y = 0; y < this._points.GetLength(1); y++)
-            //    {
-            //        Span<Rgba32> pixelsRow = imageToSave.GetPixelRowSpan(y);
+                    for (int x = 0; x < this._points.GetLength(0); x++)
+                    {
 
-            //        for (int x = 0; x < this._points.GetLength(0); x++)
-            //        {
+                        if (this._points[x, y].IsBorder)
+                        {
+                            pixelsRow[x] = Color.Black;
+                        }
+                        else
+                        {
+                            pixelsRow[x] = Color.White;
+                        }
 
-            //            if (this._points[x, y].IsBorder)
-            //            {
-            //                pixelsRow[x] = Color.Black;
-            //            }
-            //            else
-            //            {
-            //                pixelsRow[x] = Color.White;
-            //            }
+                    }
+                }
 
-            //        }
-            //    }
+                using (Stream s = new FileStream(Environment.CurrentDirectory + "/savedimage.jpeg", FileMode.Create))
+                {
+                    imageToSave.SaveAsJpeg(s);
 
-            //    using (Stream s = new FileStream(Environment.CurrentDirectory + "/savedimage.jpeg", FileMode.Create))
-            //    {
-            //        imageToSave.SaveAsJpeg(s);
-
-            //    }
-            //}
+                }
+            }
 
             MapProject.Model.Point p = this.GetRandomPoint();
 
-            //while (MapProject.Model.Point p in this.GetAroundPoints(point).Where(x => x.Parent == null))
-            //{
-            //    if (point.IsBorder == false)
-            //    {
-            //        if (point.Parent == null)
-            //        {
-            //            if (previuosPoint != null && previuosPoint.IsBorder == true)
-            //            {
-            //                region = new Region();
-            //            }
-
-            //            point.Parent = region;
-            //            region.Points.Add(point);
-            //        }
-            //        else
-            //        {
-            //            if (point.Parent != region)
-            //            {
-            //                this.MergeRegions(region, point.Parent);
-            //            }
-            //        }
-            //    }
-            //}
 
 
             //region.Points.Add(p);
 
-            //var recursionCount = 0;
+            //this.ProcessPoint(p);
 
-           
-
-            Region first = new Region();
-
-
-            List<AvoidRecursionModel> states = new List<AvoidRecursionModel>() { new AvoidRecursionModel(p, null, first) };
-
-            while (states.Count() != 0)
-            {
-                List<AvoidRecursionModel> states1 = new List<AvoidRecursionModel>();
-
-                states1.AddRange(states);
-
-                foreach (var state in states)
-                {
-                    this.ProcessPoint(state.Point, state.Region, states1, state.PreviuosPoint);
-                }
-
-                states.Clear();
-                states.AddRange(states1);
-            }
 
             return new Region();
         }
 
-
-        //private IEnumerable<MapProject.Model.Point> GetPointsNoRecursion(MapProject.Model.Point p)
-        //{
-        //    List<MapProject.Model.Point> result = new List<MapProject.Model.Point>();
-
-        //    if (p.X != 0)
-        //    {
-        //        result.Add(this._points[p.X - 1, p.Y]);
-        //    }
-
-        //    if (p.X != this._points.GetLength(0))
-        //    {
-        //        result.Add(this._points[p.X + 1, p.Y]);
-        //    }
-
-        //    if (p.Y != 0)
-        //    {
-        //        result.Add(this._points[p.X, p.Y - 1]);
-        //    }
-
-        //    if (p.Y != this._points.GetLength(0))
-        //    {
-        //        result.Add(this._points[p.X, p.Y + 1]);
-        //    }
-
-        //    return result.Where(x => x.Parent == null);
-
-        //}
-
-        private class AvoidRecursionModel
+        private void ProcessPoint(MapProject.Model.Point point, Region region = null)
         {
-            public MapProject.Model.Point Point
+            if (region == null)
             {
-                get;
-                private set;
+                region = new Region();
             }
-            public MapProject.Model.Point PreviuosPoint
-            {
-                get;
-                private set;
-            }
-            public Region Region
-            {
-                get;
-                private set;
-            }
-
-            public AvoidRecursionModel(MapProject.Model.Point point, MapProject.Model.Point previuosPoint, Region region)
-            {
-                this.Point = point;
-                this.PreviuosPoint = previuosPoint;
-                this.Region = region;
-            }
-        }
-
-
-        private void ProcessPoint(MapProject.Model.Point point, Region region, List<AvoidRecursionModel> list, MapProject.Model.Point previuosPoint = null)
-        {
-
-            list.Clear();
             
-            if (point.IsBorder == false)
+            if (point.Parent == region)
             {
-                if (point.Parent == null)
-                {
-                    if (previuosPoint != null && previuosPoint.IsBorder == true)
-                    {
-                        region = new Region();
-                    }
+                return;
+            }
 
-                    point.Parent = region;
+            if (point.Parent != null)
+            {
+                this.MergeRegions(region, point.Parent);
+
+                return;
+            }
+            else
+            {
+                if (!point.IsBorder)
+                {
                     region.Points.Add(point);
+                    point.Parent = region;
                 }
                 else
                 {
-                    if (point.Parent != region)
-                    {
-                        this.MergeRegions(region, point.Parent);
-                    }
+                    region = null;
                 }
             }
 
-            //return;
-
-
-
-
-            foreach (MapProject.Model.Point p in this.GetAroundPoints(point).Where(x => x.Parent == null))
+            foreach (MapProject.Model.Point p in this.GetAroundPoints(point))
             {
-                AvoidRecursionModel state = new AvoidRecursionModel(p, point, region);
-
-                list.Add(state);
-                //this.ProcessPoint(ref p, ref region, ref recusrionCount, ref point);
+                this.ProcessPoint(p, region);
             }
-
         }
-
-        //private void ProcessPoint(MapProject.Model.Point point, Region region = null)
-        //{
-        //    if (point.IsBorder == false && point.Parent == null)
-        //    {
-               
-        //    }
-
-
-        //    if (region == null)
-        //    {
-        //        region = new Region();
-        //    }
-            
-        //    if (point.Parent == region)
-        //    {
-        //        return;
-        //    }
-
-        //    if (point.Parent != null)
-        //    {
-        //        this.MergeRegions(region, point.Parent);
-
-        //        return;
-        //    }
-        //    else
-        //    {
-        //        if (!point.IsBorder)
-        //        {
-        //            region.Points.Add(point);
-        //            point.Parent = region;
-        //        }
-        //        else
-        //        {
-        //            region = null;
-        //        }
-        //    }
-
-
-        //    var pointsToProcess = this.GetAroundPoints(point);
-
-        //    if (pointsToProcess.All(x => x.Parent != null))
-        //    {
-        //        return;
-        //    }
-
-        //    foreach (MapProject.Model.Point p in pointsToProcess)
-        //    {
-        //        this.ProcessPoint(p, region);
-        //    }
-        //}
 
 
         private void MergeRegions(Region region1, Region region2)
@@ -312,7 +156,7 @@ namespace MapProject
                 result.Add(this._points[p.X - 1, p.Y]);
             }
 
-            if (p.X != this._points.GetLength(0) - 1)
+            if (p.X != this._points.GetLength(0))
             {
                 result.Add(this._points[p.X + 1, p.Y]);
             }
@@ -322,7 +166,7 @@ namespace MapProject
                 result.Add(this._points[p.X, p.Y - 1]);
             }
 
-            if (p.Y != this._points.GetLength(1) - 1)
+            if (p.Y != this._points.GetLength(0))
             {
                 result.Add(this._points[p.X, p.Y + 1]);
             }
