@@ -30,11 +30,18 @@ namespace MapProject.Model
             private set;
         }
 
+        public bool Processed
+        {
+            get;
+            set;
+        }
+
         public Point(int x, int y, bool isBorder)
         {
             this.X = x;
             this.Y = y;
             this.IsBorder = isBorder;
+            this.Processed = false;
         }
     }
 }
