@@ -96,7 +96,9 @@ namespace MapProject
 
             List<AvoidRecursionModel> states = new List<AvoidRecursionModel>() { new AvoidRecursionModel(p, null, first) };
 
-            while (states.Count() != 0)
+            int counter = 0;
+
+            while (counter < this._points.Length)
             {
                 List<AvoidRecursionModel> states1 = new List<AvoidRecursionModel>();
 
@@ -104,7 +106,7 @@ namespace MapProject
 
                 foreach (var state in states)
                 {
-                    this.ProcessPoint(state.Point, state.Region, states1, state.PreviuosPoint);
+                    this.ProcessPoint(state.Point, state.Region, states1, ref counter, state.PreviuosPoint);
                 }
 
                 states.Clear();
@@ -170,38 +172,40 @@ namespace MapProject
         }
 
 
-        private void ProcessPoint(MapProject.Model.Point point, Region region, List<AvoidRecursionModel> list, MapProject.Model.Point previuosPoint = null)
+        private void ProcessPoint(MapProject.Model.Point point, Region region, List<AvoidRecursionModel> list, ref int counter, MapProject.Model.Point previuosPoint = null)
         {
 
             list.Clear();
-            
-            if (point.IsBorder == false)
+
+            if (!point.Processed)
             {
-                if (point.Parent == null)
-                {
-                    if (previuosPoint != null && previuosPoint.IsBorder == true)
+                counter++;
+
+                if (point.IsBorder == false)
                     {
-                        region = new Region();
+                        if (point.Parent == null)
+                        {
+                            if (previuosPoint != null && previuosPoint.IsBorder == true)
+                            {
+                                region = new Region();
+                            }
+
+                            point.Parent = region;
+                            region.Points.Add(point);
+                        }
+                        else
+                        {
+                            if (point.Parent != region)
+                            {
+                                this.MergeRegions(region, point.Parent);
+                            }
+                        }
                     }
 
-                    point.Parent = region;
-                    region.Points.Add(point);
-                }
-                else
-                {
-                    if (point.Parent != region)
-                    {
-                        this.MergeRegions(region, point.Parent);
-                    }
-                }
+                point.Processed = true;
             }
 
-            //return;
-
-
-
-
-            foreach (MapProject.Model.Point p in this.GetAroundPoints(point).Where(x => x.Parent == null))
+            foreach (MapProject.Model.Point p in this.GetAroundPoints(point).Where(x => x != previuosPoint && x.Processed == false))
             {
                 AvoidRecursionModel state = new AvoidRecursionModel(p, point, region);
 
