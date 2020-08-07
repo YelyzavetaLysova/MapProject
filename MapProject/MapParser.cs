@@ -69,6 +69,8 @@ namespace MapProject
                 {
                     counter++;
 
+                    Console.WriteLine($"{counter} / {_points.Length}");
+
                     if (this._points[i, j].Parent == null && this._points[i, j].IsBorder == false)
                     {
                         Region r = new Region();
@@ -171,12 +173,14 @@ namespace MapProject
             }
         }
 
+        int iteration = 0;
         private void ProcessPoint(Model.Point current, Region region, List<Model.Point> states)
         {
 
 
-            Console.WriteLine("(" + current.X + ", " + current.Y + ")");
-
+            //Console.WriteLine("(" + current.X + " " + current.Y + ")");
+            
+            
 
             if (!current.IsBorder)
             {
