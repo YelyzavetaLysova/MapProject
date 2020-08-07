@@ -6,6 +6,13 @@ namespace MapProject.Model
 {
     public class Point
     {
+        //private Guid _id = Guid.Empty;
+        public Guid Id
+        {
+            get;
+            private set;
+        }
+
         public Region Parent
         {
             get;
@@ -42,6 +49,8 @@ namespace MapProject.Model
             this.Y = y;
             this.IsBorder = isBorder;
             this.Processed = false;
+
+            this.Id = Guid.NewGuid();
         }
     }
 }
