@@ -6,14 +6,14 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System.IO;
 
-namespace MapProject
+namespace MapProject.Parsing
 {
     public class MapParser : IMapParser
     {
 
         private MapProject.Model.Point[,] _points;
 
-        public Model.Region ParseImage(Image<Rgba32> img)
+        public Map ParseImage(Image<Rgba32> img)
         {
 
             this._points = new MapProject.Model.Point[img.Width, img.Height];
@@ -84,6 +84,8 @@ namespace MapProject
 
                         regions.Add(r);
 
+
+
                     }
                 }
             }
@@ -130,7 +132,7 @@ namespace MapProject
                 }
             }
 
-            return new Region();
+            return new Map("new map", regions);
         }
 
 

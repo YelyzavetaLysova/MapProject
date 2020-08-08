@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapProject", "MapProject\Ma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapProject.Test.ConsoleApp", "MapProject.Test.ConsoleApp\MapProject.Test.ConsoleApp.csproj", "{7EC52476-85AD-42AD-9C0B-AB69DC35D926}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapProject.Test.Forms", "MapProject.Test.Forms\MapProject.Test.Forms.csproj", "{0B27C111-989E-43F1-905E-41C352473AFB}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{7EC52476-85AD-42AD-9C0B-AB69DC35D926}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7EC52476-85AD-42AD-9C0B-AB69DC35D926}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7EC52476-85AD-42AD-9C0B-AB69DC35D926}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0B27C111-989E-43F1-905E-41C352473AFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0B27C111-989E-43F1-905E-41C352473AFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0B27C111-989E-43F1-905E-41C352473AFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0B27C111-989E-43F1-905E-41C352473AFB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
