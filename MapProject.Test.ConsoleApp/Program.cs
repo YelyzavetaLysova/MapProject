@@ -15,7 +15,7 @@ namespace Map.Test.Console
         static void Main(string[] args)
         {
 
-            Project prj = new Project();
+            //Project prj = new Project();
 
 
 
@@ -28,7 +28,7 @@ namespace Map.Test.Console
             Manager manager = new Manager(mp, provider);
 
 
-            manager.
+            //manager.
 
             string input;
 

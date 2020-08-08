@@ -5,6 +5,7 @@ using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using MapProject.Parsing;
+using MapProject.Model;
 
 namespace MapProject
 {
