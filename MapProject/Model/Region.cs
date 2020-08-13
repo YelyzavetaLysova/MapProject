@@ -6,14 +6,7 @@ namespace MapProject.Model
 {
     public class Region
     {
-
-        public List<Region> InnerRegions
-        {
-            get;
-            private set;
-        }
-
-        public Region OuterRegion
+        public Dictionary<string, string> Info
         {
             get;
             set;
@@ -24,6 +17,12 @@ namespace MapProject.Model
             get;
             private set;
         } 
+
+        public Map ReferencedMap
+        {
+            get;
+            set;
+        }
 
         public Region()
         {

@@ -1,4 +1,6 @@
 ﻿using MapProject;
+using MapProject.Model;
+using MapProject.Parsing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +14,21 @@ namespace Map.Test.Console
     {
         static void Main(string[] args)
         {
-            MapManager manager = new MapManager(new MapParser());
+
+            //Project prj = new Project();
+
+
+
+
+
+
+            IMapParser mp = new MapParser();
+            ISaveProvider provider = new FileSystemSaveProvider();
+
+            Manager manager = new Manager(mp, provider);
+
+
+            //manager.
 
             string input;
 

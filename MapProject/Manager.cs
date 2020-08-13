@@ -4,24 +4,31 @@ using System.Drawing;
 using System.Text;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using MapProject.Parsing;
+using MapProject.Model;
 
 namespace MapProject
 {
-    public class MapManager
+    public class Manager
     {
 
         IMapParser _parser;
+        ISaveProvider _provider;
         
-        public MapManager(IMapParser parser)
+        public Manager(IMapParser parser, ISaveProvider provider)
         {
             this._parser = parser;
+            this._provider = provider;
         }
 
-        public void ProcessMapFromImage(string pathToImage)
+
+
+
+        public Map ProcessMapFromImage(string pathToImage)
         {
             Image<Rgba32> image = Image.Load<Rgba32>(pathToImage);
 
-            this._parser.ParseImage(image);
+            return this._parser.ParseImage(image);
 
         }
     }
