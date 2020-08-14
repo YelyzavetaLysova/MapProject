@@ -8,6 +8,7 @@ using MapProject.Parsing;
 using MapProject.Model;
 using System.Linq;
 using MapProject.Saving;
+using Microsoft.Extensions.Logging;
 
 namespace MapProject
 {
@@ -16,11 +17,20 @@ namespace MapProject
 
         IMapParser _parser;
         ISaveProvider _provider;
+        ILogger _logger;
+
+        public MapProcessingSettings Settings
+        {
+            get;
+            private set;
+        }
         
-        public Manager(IMapParser parser, ISaveProvider provider)
+        public Manager(MapProcessingSettings settings, IMapParser parser, ISaveProvider provider, ILogger logger)
         {
             this._parser = parser;
             this._provider = provider;
+            this._logger = logger;
+            this.Settings = settings;
         }
 
         public Map PrarseMapFromImage(string pathToImage)

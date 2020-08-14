@@ -6,6 +6,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System.IO;
 using Microsoft.Extensions.Logging;
+using MapProject.Helpers;
 
 namespace MapProject.Parsing
 {
@@ -13,6 +14,10 @@ namespace MapProject.Parsing
     {
 
         private ILogger _logger;
+
+        private string _pointsImagePath = Environment.CurrentDirectory + "/" + "debug_region_points.jpeg";
+        private string _regionsImagePath = Environment.CurrentDirectory + "/" + "debug_regions.jpeg";
+        private string _bordersImagePath = Environment.CurrentDirectory + "/" + "debug_region_borders.jpeg";
 
         public MapParser(ILogger logger)
         {
@@ -24,128 +29,6 @@ namespace MapProject.Parsing
 
         private MapProject.Model.Point[,] _points;
 
-
-        private void SavePointsToImage()
-        {
-
-            string imagePath = Environment.CurrentDirectory + "/" + "debug_points.jpeg";
-
-            this._logger.LogInformation("Saving points to image - " + imagePath + "...");
-
-            using (var imageToSave = new Image<Rgba32>(this._points.GetLength(0), this._points.GetLength(1)))
-            {
-                for (int y = 0; y < this._points.GetLength(1); y++)
-                {
-                    Span<Rgba32> pixelsRow = imageToSave.GetPixelRowSpan(y);
-
-                    for (int x = 0; x < this._points.GetLength(0); x++)
-                    {
-
-                        if (this._points[x, y].IsBorder)
-                        {
-                            pixelsRow[x] = Color.Red;
-                        }
-                        else
-                        {
-                            pixelsRow[x] = Color.White;
-                        }
-
-                    }
-                }
-
-                using (Stream s = new FileStream(imagePath, FileMode.Create))
-                {
-                    imageToSave.SaveAsJpeg(s);
-
-                }
-            }
-        }
-
-        private void SaveRegionsToImage(IEnumerable<Region> regions)
-        {
-            string imagePath = Environment.CurrentDirectory + "/" + "debug_regions.jpeg";
-
-            this._logger.LogInformation("Saving regions to image - " + imagePath + "...");
-
-            using (var imageToSave = new Image<Rgba32>(this._points.GetLength(0), this._points.GetLength(1)))
-            {
-                Random r = new Random();
-
-                this._logger.LogDebug("Region colours:");
-
-                foreach (var region in regions.Where(x => x.Points.Count() > 200))
-                {
-
-                    byte red = Convert.ToByte(r.Next(0, 256));
-                    byte green = Convert.ToByte(r.Next(0, 256));
-                    byte blue = Convert.ToByte(r.Next(0, 256));
-
-                    this._logger.LogDebug(region.Id + ": " + "(" + red + ", " + green + ", " + blue + ")");
-
-                    foreach (var point in region.Points)
-                    {
-                        int y = point.Y;
-                        int x = point.X;
-
-                        Span<Rgba32> pixelsRow = imageToSave.GetPixelRowSpan(y);
-
-                        pixelsRow[x] = Color.FromRgb(red, green, blue);
-
-                    }
-                }
-
-               
-
-                using (Stream s = new FileStream(imagePath, FileMode.Create))
-                {
-                    imageToSave.SaveAsJpeg(s);
-
-                }
-            }
-        }
-
-        private void SaveRegionBordersToImage(IEnumerable<Region> regions)
-        {
-            string imagePath = Environment.CurrentDirectory + "/" + "debug_region_borders.jpeg";
-
-            this._logger.LogInformation("Saving region borders to image - " + imagePath + "...");
-
-            using (var imageToSave = new Image<Rgba32>(this._points.GetLength(0), this._points.GetLength(1)))
-            {
-                Random r = new Random();
-
-                this._logger.LogDebug("Region colours:");
-
-                foreach (var region in regions.Where(x => x.Points.Count() > 200))
-                {
-
-                    byte red = Convert.ToByte(r.Next(0, 256));
-                    byte green = Convert.ToByte(r.Next(0, 256));
-                    byte blue = Convert.ToByte(r.Next(0, 256));
-
-                    this._logger.LogDebug(region.Id + ": " + "(" + red + ", " + green + ", " + blue + ")");
-
-                    foreach (var point in region.Points.Where(x => x.IsBorder))
-                    {
-                        int y = point.Y;
-                        int x = point.X;
-
-                        Span<Rgba32> pixelsRow = imageToSave.GetPixelRowSpan(y);
-
-                        pixelsRow[x] = Color.FromRgb(red, green, blue);
-
-                    }
-                }
-
-
-
-                using (Stream s = new FileStream(imagePath, FileMode.Create))
-                {
-                    imageToSave.SaveAsJpeg(s);
-
-                }
-            }
-        }
 
         public IEnumerable<Region> ParseImage(Image<Rgba32> img)
         {
@@ -162,8 +45,9 @@ namespace MapProject.Parsing
                 }
             }
 
+            this._logger.LogInformation("Saving points to image - " + this._pointsImagePath + "...");
 
-            this.SavePointsToImage();
+            ImageHelper.SavePointsToImage(this._points, this._pointsImagePath);
 
 
             int counter = 0;
@@ -210,9 +94,17 @@ namespace MapProject.Parsing
 
             regions.RemoveAll(x => x.Points.Count() < 200);
 
-            this.SaveRegionsToImage(regions);
+            this._logger.LogInformation("Saving regions to image - " + this._regionsImagePath + "...");
 
-            this.SaveRegionBordersToImage(regions);
+            ImageHelper.SaveRegionsToImage(regions, this._regionsImagePath);
+
+            
+
+            this._logger.LogInformation("Saving region borders to image - " + _bordersImagePath + "...");
+
+            ImageHelper.SaveRegionBordersToImage(regions, _bordersImagePath, 100);
+
+
 
             this._logger.LogInformation("Image processing finished");
 
