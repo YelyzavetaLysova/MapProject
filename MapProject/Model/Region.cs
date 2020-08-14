@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,10 +7,24 @@ namespace MapProject.Model
 {
     public class Region
     {
-        public Dictionary<string, string> Info
+        private string _id;
+        
+        public string Id
         {
-            get;
-            set;
+            get
+            {
+                if (String.IsNullOrWhiteSpace(this._id))
+                {
+                    this._id = Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Replace("==", String.Empty).Replace("/", String.Empty).Replace("+", String.Empty);
+                }
+
+                return this._id;
+            }
+            private set
+            {
+                this._id = value;
+            }
+            
         }
 
         public List<Point> Points
@@ -21,7 +36,7 @@ namespace MapProject.Model
         public Map ReferencedMap
         {
             get;
-            set;
+            private set;
         }
 
         public Region()
@@ -31,18 +46,13 @@ namespace MapProject.Model
 
         public Region(IEnumerable<Point> points) : this()
         {
-            this.AddPoint(points);
-        }
-
-        public void AddPoint(Point p) 
-        {
-            this.Points.Add(p);
-        }
-
-        public void AddPoint(IEnumerable<Point> points)
-        {
             this.Points.AddRange(points);
         }
 
+        public Region(string id, IEnumerable<Point> points, Map referencedMap) : this(points)
+        {
+            this.Id = id;
+            this.ReferencedMap = referencedMap;
+        }
     }
 }

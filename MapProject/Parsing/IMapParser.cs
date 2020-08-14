@@ -9,6 +9,6 @@ namespace MapProject.Parsing
 {
     public interface IMapParser
     {
-       Map ParseImage(Image<Rgba32> img);
+        IEnumerable<Region> ParseImage(Image<Rgba32> img);
     }
 }

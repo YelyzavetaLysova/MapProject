@@ -1,0 +1,22 @@
+﻿
+@model MapProject.Web.Models.MyModel
+
+
+
+@{
+    ViewData["Title"] = "SaveMyModel";
+}
+
+<h1>RenderMyModel</h1>
+
+<div>
+    <form method="post" controller="my" action="SaveMyModel">
+
+        IntProperty: <input type="number" name="IntProperty" /> <br />
+        StringProperty: <input type="text" name="StringProperty" /> <br />
+        BoolProperty <input type="checkbox" name="BoolProperty" /> <br />
+
+        <button type="submit">I am knopka</button>
+    </form>
+
+</div>

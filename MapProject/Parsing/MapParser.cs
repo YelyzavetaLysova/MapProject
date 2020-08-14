@@ -5,33 +5,35 @@ using System.Linq;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System.IO;
+using Microsoft.Extensions.Logging;
 
 namespace MapProject.Parsing
 {
     public class MapParser : IMapParser
     {
 
+        private ILogger _logger;
+
+        public MapParser(ILogger logger)
+        {
+            this._logger = logger;
+
+            this._logger.LogDebug("MapParser was initialized");
+        }
+
+
         private MapProject.Model.Point[,] _points;
 
-        public Map ParseImage(Image<Rgba32> img)
+
+        private void SavePointsToImage()
         {
 
-            this._points = new MapProject.Model.Point[img.Width, img.Height];
+            string imagePath = Environment.CurrentDirectory + "/" + "debug_points.jpeg";
 
-            for (int y = 0; y < img.Height; y++)
-            {
-                Span<Rgba32> pixelsRow = img.GetPixelRowSpan(y);
-
-                for (int x = 0; x < img.Width; x++)
-                {
-                    this._points[x, y] = new MapProject.Model.Point(x, y, this.isBorder(new Color(pixelsRow[x])));
-                }
-            }
-
+            this._logger.LogInformation("Saving points to image - " + imagePath + "...");
 
             using (var imageToSave = new Image<Rgba32>(this._points.GetLength(0), this._points.GetLength(1)))
             {
-
                 for (int y = 0; y < this._points.GetLength(1); y++)
                 {
                     Span<Rgba32> pixelsRow = imageToSave.GetPixelRowSpan(y);
@@ -51,57 +53,25 @@ namespace MapProject.Parsing
                     }
                 }
 
-                using (Stream s = new FileStream(Environment.CurrentDirectory + "/savedimage.jpeg", FileMode.Create))
+                using (Stream s = new FileStream(imagePath, FileMode.Create))
                 {
                     imageToSave.SaveAsJpeg(s);
 
                 }
             }
+        }
 
+        private void SaveRegionsToImage(IEnumerable<Region> regions)
+        {
+            string imagePath = Environment.CurrentDirectory + "/" + "debug_regions.jpeg";
 
-            int counter = 0;
-
-            List<Region> regions = new List<Region>();
-
-            for(int i = 0; i < this._points.GetLength(0); i++)
-            {
-                for(int j = 0; j < this._points.GetLength(1); j++)
-                {
-                    counter++;
-
-                    Console.WriteLine($"{counter} / {_points.Length}");
-
-                    if (this._points[i, j].Parent == null && this._points[i, j].IsBorder == false)
-                    {
-                        Region r = new Region();
-
-                        List<Model.Point> states = new List<Model.Point>() { this._points[i, j] };
-
-                       
-                        do
-                        {
-                            this.ProcessPoint(states.First(), r, states);
-                        }
-                        while (states.Count() != 0);
-
-                        regions.Add(r);
-
-
-
-                    }
-                }
-            }
-
-
-
-
-            Console.WriteLine("Total regions count: " + regions.Count());
-            Console.WriteLine("Big regions count: " + regions.Count((x => x.Points.Count() > 200)));
-
+            this._logger.LogInformation("Saving regions to image - " + imagePath + "...");
 
             using (var imageToSave = new Image<Rgba32>(this._points.GetLength(0), this._points.GetLength(1)))
             {
                 Random r = new Random();
+
+                this._logger.LogDebug("Region colours:");
 
                 foreach (var region in regions.Where(x => x.Points.Count() > 200))
                 {
@@ -110,8 +80,7 @@ namespace MapProject.Parsing
                     byte green = Convert.ToByte(r.Next(0, 256));
                     byte blue = Convert.ToByte(r.Next(0, 256));
 
-                    Console.WriteLine("(" + red + ", " + green + ", " + blue + ")");
-
+                    this._logger.LogDebug(region.Id + ": " + "(" + red + ", " + green + ", " + blue + ")");
 
                     foreach (var point in region.Points)
                     {
@@ -125,29 +94,130 @@ namespace MapProject.Parsing
                     }
                 }
 
-                
+               
 
-                using (Stream s = new FileStream(Environment.CurrentDirectory + "/regions.jpeg", FileMode.Create))
+                using (Stream s = new FileStream(imagePath, FileMode.Create))
                 {
                     imageToSave.SaveAsJpeg(s);
 
                 }
             }
-
-            return new Map("new map", regions);
         }
 
-
-
-        public void AddPointsToRegion(Model.Point point, Region region)
+        private void SaveRegionBordersToImage(IEnumerable<Region> regions)
         {
-            if (!point.IsBorder)
+            string imagePath = Environment.CurrentDirectory + "/" + "debug_region_borders.jpeg";
+
+            this._logger.LogInformation("Saving region borders to image - " + imagePath + "...");
+
+            using (var imageToSave = new Image<Rgba32>(this._points.GetLength(0), this._points.GetLength(1)))
             {
-                region.AddPoint(point);
-                point.Parent = region;
+                Random r = new Random();
+
+                this._logger.LogDebug("Region colours:");
+
+                foreach (var region in regions.Where(x => x.Points.Count() > 200))
+                {
+
+                    byte red = Convert.ToByte(r.Next(0, 256));
+                    byte green = Convert.ToByte(r.Next(0, 256));
+                    byte blue = Convert.ToByte(r.Next(0, 256));
+
+                    this._logger.LogDebug(region.Id + ": " + "(" + red + ", " + green + ", " + blue + ")");
+
+                    foreach (var point in region.Points.Where(x => x.IsBorder))
+                    {
+                        int y = point.Y;
+                        int x = point.X;
+
+                        Span<Rgba32> pixelsRow = imageToSave.GetPixelRowSpan(y);
+
+                        pixelsRow[x] = Color.FromRgb(red, green, blue);
+
+                    }
+                }
+
+
+
+                using (Stream s = new FileStream(imagePath, FileMode.Create))
+                {
+                    imageToSave.SaveAsJpeg(s);
+
+                }
             }
         }
 
+        public IEnumerable<Region> ParseImage(Image<Rgba32> img)
+        {
+
+            this._points = new MapProject.Model.Point[img.Width, img.Height];
+
+            for (int y = 0; y < img.Height; y++)
+            {
+                Span<Rgba32> pixelsRow = img.GetPixelRowSpan(y);
+
+                for (int x = 0; x < img.Width; x++)
+                {
+                    this._points[x, y] = new MapProject.Model.Point(x, y, this.isBorder(new Color(pixelsRow[x])));
+                }
+            }
+
+
+            this.SavePointsToImage();
+
+
+            int counter = 0;
+
+            List<Region> regions = new List<Region>();
+
+            for(int i = 0; i < this._points.GetLength(0); i++)
+            {
+                for(int j = 0; j < this._points.GetLength(1); j++)
+                {
+                    counter++;
+
+                    if (counter % 100 == 0)
+                    {
+                        this._logger.LogInformation($"{counter} / {_points.Length}");
+                    }
+
+                    if (String.IsNullOrWhiteSpace(this._points[i, j].ParentId) && this._points[i, j].IsBorder == false)
+                    {
+                        Region r = new Region();
+
+                        this._logger.LogDebug("New region created: " + r.Id);
+
+                        List <Model.Point> states = new List<Model.Point>() { this._points[i, j] };
+
+                        do
+                        { 
+                            this.ProcessPoint(states.First(), r, states);
+                        }
+                        while (states.Count() != 0);
+
+                        regions.Add(r);
+
+
+
+                    }
+                }
+            }
+
+            this._logger.LogInformation("Total regions count: " + regions.Count());
+            this._logger.LogInformation("Big regions count: " + regions.Count((x => x.Points.Count() > 200)));
+            this._logger.LogInformation("Removing small regions...");
+
+
+            regions.RemoveAll(x => x.Points.Count() < 200);
+
+            this.SaveRegionsToImage(regions);
+
+            this.SaveRegionBordersToImage(regions);
+
+            this._logger.LogInformation("Image processing finished");
+
+            return regions;
+        }
         
         private class AvoidRecursionModel
         {
@@ -175,31 +245,34 @@ namespace MapProject.Parsing
             }
         }
 
-        int iteration = 0;
         private void ProcessPoint(Model.Point current, Region region, List<Model.Point> states)
         {
-
-
-            //Console.WriteLine("(" + current.X + " " + current.Y + ")");
-            
-            
-
             if (!current.IsBorder)
             {
-                if (current.Parent == null)
+                if (String.IsNullOrWhiteSpace(current.ParentId))
                 {
-                    current.Parent = region;
+                    current.ParentId = region.Id;
                     region.Points.Add(current);
                 }
 
-                foreach (MapProject.Model.Point p in this.GetAroundPoints(current).Where(x => !x.IsBorder && x.Processed == false))
+                foreach (MapProject.Model.Point p in this.GetAroundPoints(current))
                 {
-                    if (!states.Contains(p))
+                    if (p.IsBorder == false && p.Processed == false)
                     {
-                        states.Add(p);
+                        if (!states.Contains(p))
+                        {
+                            states.Add(p);
+                        }
+                    }
+                    else
+                    {
+                        p.ParentId = region.Id;
+                        region.Points.Add(p);
                     }
                 }
-            }
+
+                
+            } 
 
             states.Remove(current);
 
@@ -207,15 +280,6 @@ namespace MapProject.Parsing
 
 
 
-        }
-
-        private void MergeRegions(Region region1, Region region2)
-        {
-           region1.Points.AddRange(region2.Points);
-
-           region2.Points.ForEach(p => p.Parent = region1);
-          
-           region2 = null;
         }
 
         private bool isBorder(Color point)
@@ -228,25 +292,8 @@ namespace MapProject.Parsing
 
             return true;
         }
-
-        private MapProject.Model.Point GetRandomPoint()
-        {
-
-            Random r = new Random();
-
-            MapProject.Model.Point result;
-
-            do
-            {
-                result = this._points[r.Next(0, this._points.GetLength(0)), r.Next(0, this._points.GetLength(1))];
-
-            } while (!result.IsBorder);
-
-            return result;
-
-        }
-
-        public IEnumerable<MapProject.Model.Point> GetAroundPoints(MapProject.Model.Point p)
+        
+        private IEnumerable<MapProject.Model.Point> GetAroundPoints(MapProject.Model.Point p)
         {
             List<MapProject.Model.Point> result = new List<MapProject.Model.Point>();
 

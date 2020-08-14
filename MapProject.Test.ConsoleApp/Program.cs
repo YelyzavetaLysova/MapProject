@@ -7,6 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MapProject.Saving;
+using Microsoft.Extensions.Logging;
 
 namespace Map.Test.Console
 {
@@ -15,20 +17,19 @@ namespace Map.Test.Console
         static void Main(string[] args)
         {
 
-            //Project prj = new Project();
+            var loggerFactory = LoggerFactory.Create(builder => 
+            {
+                builder.AddConsole();
+            });
 
+            ILogger logger = loggerFactory.CreateLogger("MapProject.Console");
+       
 
-
-
-
-
-            IMapParser mp = new MapParser();
-            ISaveProvider provider = new FileSystemSaveProvider();
+            IMapParser mp = new MapParser(logger);
+            ISaveProvider provider = new JsonFileSystemSaveProvider();
 
             Manager manager = new Manager(mp, provider);
 
-
-            //manager.
 
             string input;
 
@@ -56,15 +57,13 @@ namespace Map.Test.Console
                         continue;
                     }
 
-                    manager.ProcessMapFromImage(input);
+                    var map = manager.PrarseMapFromImage(input);
 
-                    //}
-                    //catch(Exception e)
-                    //{
-                    //    System.Console.WriteLine("Exception happened while processing file");
-                    //    System.Console.WriteLine(e.Message);
-                    //    continue;
-                    //}
+                    manager.SaveMap(map);
+
+                    //var map = manager.GetMap(input);
+
+                    //int i = 0;
 
                 }
 

@@ -9,19 +9,24 @@ namespace MapProject.Model
         public string Name
         {
             get;
-            set;
+            private set;
         }
 
         public List<Region> Regions
         {
             get;
-            set;
+            private set;
         }
 
-        public Map(string name, List<Region> regions)
+        public Map()
+        {
+            this.Regions = new List<Region>();
+        }
+
+        public Map(string name, IEnumerable<Region> regions) : this()
         {
             this.Name = name;
-            this.Regions = regions;
+            this.Regions.AddRange(regions);
         }
     }
 }

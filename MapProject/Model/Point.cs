@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -7,13 +8,8 @@ namespace MapProject.Model
     public class Point
     {
         //private Guid _id = Guid.Empty;
-        public Guid Id
-        {
-            get;
-            private set;
-        }
 
-        public Region Parent
+        public string ParentId
         {
             get;
             set;
@@ -22,19 +18,19 @@ namespace MapProject.Model
         public int X
         {
             get;
-            private set;
+            set;
         }
 
         public int Y
         {
             get;
-            private set;
+            set;
         }
 
         public bool IsBorder
         {
             get;
-            private set;
+            set;
         }
 
         public bool Processed
@@ -49,8 +45,12 @@ namespace MapProject.Model
             this.Y = y;
             this.IsBorder = isBorder;
             this.Processed = false;
+        }
 
-            this.Id = Guid.NewGuid();
+        public Point(int x, int y, string parentId, bool isBorder, bool processed) : this(x, y, isBorder)
+        {
+            this.ParentId = parentId;
+            this.Processed = processed;
         }
     }
 }

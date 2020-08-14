@@ -3,15 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MapProject
+namespace MapProject.Saving
 {
     public interface ISaveProvider
     {
-
-        List<Map> GetMap(string name);
+        Map GetMap(string name);
 
         List<string> GetMaps();
 
-        void SaveMap(Map project);
+        void SaveMap(Map map);
     }
 }
