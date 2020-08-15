@@ -25,23 +25,18 @@ namespace MapProject.Saving
 
         public JsonMapModel()
         {
-         
         }
 
-        public JsonMapModel(Map map)
+        public JsonMapModel(Map map) : this()
         {
             this.Name = map.Name;
+
             this.Regions = map.Regions.Select(x => new JsonRegionModel(x)).ToList();
         }
 
-        public static Map ToMap(JsonMapModel mapModel)
+        public Map ToMap()
         {
-            if (mapModel == null)
-            {
-                return null;
-            }
-
-            return new Map(mapModel.Name, mapModel.Regions.Select(x => JsonRegionModel.ToRegion(x)));
+            return new Map(this.Name, this.Regions.Select(x => x.ToRegion()));
         }
     }
 }

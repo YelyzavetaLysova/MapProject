@@ -9,6 +9,15 @@ namespace MapProject.Saving
 {
     class JsonRegionModel
     {
+
+
+        [JsonIgnore]
+        public string OriginalId
+        {
+            get;
+            set;
+        }
+
         [JsonProperty(PropertyName = "i")]
         public string Id
         {
@@ -50,6 +59,7 @@ namespace MapProject.Saving
         public JsonRegionModel(Region region)
         {
             this.Id = region.Id;
+            this.OriginalId = region.Id;
             this.Points = region.Points.Select(x => new JsonPointModel(x)).ToList();
 
             if (region.ReferencedMap != null)
@@ -58,14 +68,12 @@ namespace MapProject.Saving
             }
         }
 
-        public static Region ToRegion(JsonRegionModel regionModel)
+        public Region ToRegion()
         {
-            if (regionModel == null)
-            {
-                return null;
-            }
 
-            return new Region(regionModel.Id, regionModel.Points.Select(x => JsonPointModel.ToPoint(x)), JsonMapModel.ToMap(regionModel.ReferencedMap));
+            var map = this.ReferencedMap == null ? null : this.ReferencedMap.ToMap();
+
+            return new Region(this.Id, this.Points.Select(x => x.ToPoint(this.Id)), map);
         }
     }
 }

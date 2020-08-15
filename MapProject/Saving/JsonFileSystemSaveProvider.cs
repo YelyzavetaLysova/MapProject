@@ -34,7 +34,9 @@ namespace MapProject.Saving
                 return null;
             }
 
-            return JsonMapModel.ToMap(JsonConvert.DeserializeObject<JsonMapModel>(File.ReadAllText(path)));
+            var jsonMapModel = JsonConvert.DeserializeObject<JsonMapModel>(File.ReadAllText(path));
+
+            return jsonMapModel.ToMap();
         }
 
         public List<string> GetMaps()

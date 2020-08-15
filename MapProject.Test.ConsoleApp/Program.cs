@@ -85,6 +85,13 @@ namespace Map.Test.Console
                             }
 
                             var map = manager.GetMap(parameter);
+
+                            System.Console.WriteLine("Map Loaded: " + map.Name);
+                            System.Console.WriteLine("Map name: " + map.Name);
+                            System.Console.WriteLine("Map regions: " + map.Regions.Count());
+
+
+                            //int i = 0;
                         }
                         else
                         {

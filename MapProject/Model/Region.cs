@@ -15,7 +15,7 @@ namespace MapProject.Model
             {
                 if (String.IsNullOrWhiteSpace(this._id))
                 {
-                    this._id = Convert.ToBase64String(Guid.NewGuid().ToByteArray()).Replace("==", String.Empty).Replace("/", String.Empty).Replace("+", String.Empty);
+                    this._id = Guid.NewGuid().ToString().Replace("-", String.Empty);
                 }
 
                 return this._id;
