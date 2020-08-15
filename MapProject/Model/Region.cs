@@ -7,24 +7,10 @@ namespace MapProject.Model
 {
     public class Region
     {
-        private string _id;
-        
         public string Id
         {
-            get
-            {
-                if (String.IsNullOrWhiteSpace(this._id))
-                {
-                    this._id = Guid.NewGuid().ToString().Replace("-", String.Empty);
-                }
-
-                return this._id;
-            }
-            private set
-            {
-                this._id = value;
-            }
-            
+            get;
+            private set;
         }
 
         public List<Point> Points
@@ -41,6 +27,9 @@ namespace MapProject.Model
 
         public Region()
         {
+            
+            this.Id = Guid.NewGuid().ToString().Replace("-", String.Empty);
+
             this.Points = new List<Point>();
         }
 

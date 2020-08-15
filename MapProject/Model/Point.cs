@@ -7,8 +7,6 @@ namespace MapProject.Model
 {
     public class Point
     {
-        //private Guid _id = Guid.Empty;
-
         public string ParentId
         {
             get;
