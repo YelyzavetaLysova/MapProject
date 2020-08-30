@@ -23,7 +23,7 @@ namespace MapProject.Web.Controllers
         [HttpGet]
         public IActionResult SaveMyModel()
         {
-            return this.View();
+            return this.View("RenderMyModel");
         }
     }
 }

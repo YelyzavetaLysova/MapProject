@@ -1,0 +1,36 @@
+﻿@model MapProject.Model.Map
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>RenderMap</title>
+</head>
+<body>
+    <svg height="1000" width="2000">
+        @{
+
+            foreach (var region in Model.Regions)
+            {
+
+                <g id="@region.Id">
+
+                    @foreach (var point in region.Points.Where(x => x.IsBorder))
+                    {
+                    <circle cx="@point.X" cy="@point.Y" r="1" />
+                    //points += point.X + " " + point.Y + ",";
+                    }
+                    @*<polygon points="@points.Remove(points.Length - 1)" />*@
+
+                </g>
+            }
+
+
+        }
+    </svg>
+</body>
+</html>

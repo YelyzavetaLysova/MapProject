@@ -43,9 +43,10 @@ namespace MapProject.Saving
 
         public JsonPointModel(Point point)
         {
+
             this.IsBorder = point.IsBorder == false ? 0 : 1;
             this.X = point.X;
-            this.X = point.Y;
+            this.Y = point.Y;
             this.Processed = Processed;
         }
 

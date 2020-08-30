@@ -17,20 +17,20 @@ namespace MapProject
 
         IMapParser _parser;
         ISaveProvider _provider;
-        ILogger _logger;
+        //ILogger _logger;
 
-        public MapProcessingSettings Settings
-        {
-            get;
-            private set;
-        }
+        //public MapProcessingSettings Settings
+        //{
+        //    get;
+        //    private set;
+        //}
         
-        public Manager(MapProcessingSettings settings, IMapParser parser, ISaveProvider provider, ILogger logger)
+        public Manager(/*MapProcessingSettings settings, */IMapParser parser, ISaveProvider provider /* ILogger logger*/)
         {
             this._parser = parser;
             this._provider = provider;
-            this._logger = logger;
-            this.Settings = settings;
+            //this._logger = logger;
+            //this.Settings = settings;
         }
 
         public Map PrarseMapFromImage(string pathToImage)
@@ -59,7 +59,10 @@ namespace MapProject
 
         public List<string> GetMaps()
         {
+           
+
             return this._provider.GetMaps();
+            
         }
 
     }

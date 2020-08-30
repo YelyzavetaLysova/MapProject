@@ -11,7 +11,7 @@ namespace MapProject.Saving
     public class JsonFileSystemSaveProvider : ISaveProvider
     {
 
-        private string _path = Environment.CurrentDirectory + "/Map";
+        private string _path = Environment.CurrentDirectory + "/Maps";
         private string _extention = ".json";
         
         public JsonFileSystemSaveProvider()
@@ -45,10 +45,9 @@ namespace MapProject.Saving
 
             result.AddRange(Directory.GetFiles(this._path, "*" + this._extention).Select(x => { 
             
-                var array = x.Split('/', '\\');
+                return Path.GetFileNameWithoutExtension(x);
 
-                return array[array.Length - 1];
-            
+
             }));
 
             return result;

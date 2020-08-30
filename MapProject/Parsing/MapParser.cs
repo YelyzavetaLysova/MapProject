@@ -12,19 +12,20 @@ namespace MapProject.Parsing
 {
     public class MapParser : IMapParser
     {
+     
 
-        private ILogger _logger;
+        //private ILogger _logger;
 
         private string _pointsImagePath = Environment.CurrentDirectory + "/" + "debug_region_points.jpeg";
         private string _regionsImagePath = Environment.CurrentDirectory + "/" + "debug_regions.jpeg";
         private string _bordersImagePath = Environment.CurrentDirectory + "/" + "debug_region_borders.jpeg";
 
-        public MapParser(ILogger logger)
-        {
-            this._logger = logger;
+        //public MapParser(ILogger logger)
+        //{
+        //    this._logger = logger;
 
-            this._logger.LogDebug("MapParser was initialized");
-        }
+        //    this._logger.LogDebug("MapParser was initialized");
+        //}
 
 
         private MapProject.Model.Point[,] _points;
@@ -45,7 +46,7 @@ namespace MapProject.Parsing
                 }
             }
 
-            this._logger.LogInformation("Saving points to image - " + this._pointsImagePath + "...");
+            //this._logger.LogInformation("Saving points to image - " + this._pointsImagePath + "...");
 
             ImageHelper.SavePointsToImage(this._points, this._pointsImagePath);
 
@@ -60,16 +61,16 @@ namespace MapProject.Parsing
                 {
                     counter++;
 
-                    if (counter % 100 == 0)
-                    {
-                        this._logger.LogInformation($"{counter} / {_points.Length}");
-                    }
+                    //if (counter % 100 == 0)
+                    //{
+                    //    this._logger.LogInformation($"{counter} / {_points.Length}");
+                    //}
 
                     if (String.IsNullOrWhiteSpace(this._points[i, j].ParentId) && this._points[i, j].IsBorder == false)
                     {
                         Region r = new Region();
 
-                        this._logger.LogDebug("New region created: " + r.Id);
+                        //this._logger.LogDebug("New region created: " + r.Id);
 
                         List <Model.Point> states = new List<Model.Point>() { this._points[i, j] };
 
@@ -87,26 +88,26 @@ namespace MapProject.Parsing
                 }
             }
 
-            this._logger.LogInformation("Total regions count: " + regions.Count());
-            this._logger.LogInformation("Big regions count: " + regions.Count((x => x.Points.Count() > 200)));
-            this._logger.LogInformation("Removing small regions...");
+            //this._logger.LogInformation("Total regions count: " + regions.Count());
+            //this._logger.LogInformation("Big regions count: " + regions.Count((x => x.Points.Count() > 200)));
+            //this._logger.LogInformation("Removing small regions...");
 
 
             regions.RemoveAll(x => x.Points.Count() < 200);
 
-            this._logger.LogInformation("Saving regions to image - " + this._regionsImagePath + "...");
+            //this._logger.LogInformation("Saving regions to image - " + this._regionsImagePath + "...");
 
             ImageHelper.SaveRegionsToImage(regions, this._regionsImagePath);
 
             
 
-            this._logger.LogInformation("Saving region borders to image - " + _bordersImagePath + "...");
+            //this._logger.LogInformation("Saving region borders to image - " + _bordersImagePath + "...");
 
             ImageHelper.SaveRegionBordersToImage(regions, _bordersImagePath, 100);
 
 
 
-            this._logger.LogInformation("Image processing finished");
+            //this._logger.LogInformation("Image processing finished");
 
             return regions;
         }
