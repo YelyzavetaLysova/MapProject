@@ -12,29 +12,20 @@ namespace MapProject.Parsing
 {
     public class MapParser : IMapParser
     {
-     
-
-        //private ILogger _logger;
 
         private string _pointsImagePath = Environment.CurrentDirectory + "/" + "debug_region_points.jpeg";
         private string _regionsImagePath = Environment.CurrentDirectory + "/" + "debug_regions.jpeg";
         private string _bordersImagePath = Environment.CurrentDirectory + "/" + "debug_region_borders.jpeg";
 
-        //public MapParser(ILogger logger)
-        //{
-        //    this._logger = logger;
-
-        //    this._logger.LogDebug("MapParser was initialized");
-        //}
-
 
         private MapProject.Model.Point[,] _points;
 
-
+        private HashSet<Model.Point> _processedPoints;
         public IEnumerable<Region> ParseImage(Image<Rgba32> img)
         {
 
             this._points = new MapProject.Model.Point[img.Width, img.Height];
+            this._processedPoints = new HashSet<Model.Point>();
 
             for (int y = 0; y < img.Height; y++)
             {
@@ -45,8 +36,6 @@ namespace MapProject.Parsing
                     this._points[x, y] = new MapProject.Model.Point(x, y, this.isBorder(new Color(pixelsRow[x])));
                 }
             }
-
-            //this._logger.LogInformation("Saving points to image - " + this._pointsImagePath + "...");
 
             ImageHelper.SavePointsToImage(this._points, this._pointsImagePath);
 
@@ -61,21 +50,19 @@ namespace MapProject.Parsing
                 {
                     counter++;
 
-                    //if (counter % 100 == 0)
-                    //{
-                    //    this._logger.LogInformation($"{counter} / {_points.Length}");
-                    //}
 
-                    if (String.IsNullOrWhiteSpace(this._points[i, j].ParentId) && this._points[i, j].IsBorder == false)
+                    Console.WriteLine(counter);
+
+                    var point = this._points[i, j];
+
+                    if (String.IsNullOrWhiteSpace(point.ParentId) && point.IsBorder == false && !this.IsProcessed(point))
                     {
                         Region r = new Region();
 
-                        //this._logger.LogDebug("New region created: " + r.Id);
-
-                        List <Model.Point> states = new List<Model.Point>() { this._points[i, j] };
+                        List <Model.Point> states = new List<Model.Point>() { point };
 
                         do
-                        { 
+                        {
                             this.ProcessPoint(states.First(), r, states);
                         }
                         while (states.Count() != 0);
@@ -88,26 +75,16 @@ namespace MapProject.Parsing
                 }
             }
 
-            //this._logger.LogInformation("Total regions count: " + regions.Count());
-            //this._logger.LogInformation("Big regions count: " + regions.Count((x => x.Points.Count() > 200)));
-            //this._logger.LogInformation("Removing small regions...");
-
 
             regions.RemoveAll(x => x.Points.Count() < 200);
-
-            //this._logger.LogInformation("Saving regions to image - " + this._regionsImagePath + "...");
 
             ImageHelper.SaveRegionsToImage(regions, this._regionsImagePath);
 
             
 
-            //this._logger.LogInformation("Saving region borders to image - " + _bordersImagePath + "...");
-
             ImageHelper.SaveRegionBordersToImage(regions, _bordersImagePath, 100);
 
 
-
-            //this._logger.LogInformation("Image processing finished");
 
             return regions;
         }
@@ -138,6 +115,11 @@ namespace MapProject.Parsing
             }
         }
 
+        private bool IsProcessed(Model.Point point)
+        {
+            return this._processedPoints.Contains(point);
+        }
+
         private void ProcessPoint(Model.Point current, Region region, List<Model.Point> states)
         {
             if (!current.IsBorder)
@@ -150,12 +132,12 @@ namespace MapProject.Parsing
 
                 foreach (MapProject.Model.Point p in this.GetAroundPoints(current))
                 {
-                    if (p.IsBorder == false && p.Processed == false)
+                    if (p.IsBorder == false && !this.IsProcessed(p))
                     {
                         if (!states.Contains(p))
                         {
                             states.Add(p);
-                        }
+                        }  
                     }
                     else
                     {
@@ -165,21 +147,16 @@ namespace MapProject.Parsing
                 }
 
                 
-            } 
+            }
 
+            this._processedPoints.Add(current);
             states.Remove(current);
-
-            current.Processed = true;
-
-
-
         }
 
         private bool isBorder(Color point)
         {
             if (point == Color.White)
             {
-                //Color.FromRgb(80, 122, 172)
                 return false;
             }
 
