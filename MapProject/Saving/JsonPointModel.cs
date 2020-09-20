@@ -29,13 +29,6 @@ namespace MapProject.Saving
             set;
         }
 
-        [JsonIgnore]
-        public bool Processed
-        {
-            get;
-            set;
-        }
-
         public JsonPointModel()
         {
 
@@ -47,12 +40,11 @@ namespace MapProject.Saving
             this.IsBorder = point.IsBorder == false ? 0 : 1;
             this.X = point.X;
             this.Y = point.Y;
-            this.Processed = Processed;
         }
 
         public Point ToPoint(string parentId)
         {
-            return new Point(this.X, this.Y, parentId, this.IsBorder != 0, this.Processed);
+            return new Point(this.X, this.Y, parentId, this.IsBorder != 0);
         }
     }
 }

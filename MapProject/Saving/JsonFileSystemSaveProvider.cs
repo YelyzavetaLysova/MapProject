@@ -12,7 +12,7 @@ namespace MapProject.Saving
     {
 
         private string _path = Environment.CurrentDirectory + "/Maps";
-        private string _extention = ".json";
+        private string _extention = ".map";
         
         public JsonFileSystemSaveProvider()
         {
@@ -25,7 +25,7 @@ namespace MapProject.Saving
 
         public Map GetMap(string name)
         {
-            Map result = new Map();
+            //Map result = new Map();
 
             string path = this._path + "/" + name + this._extention;
 

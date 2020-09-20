@@ -11,7 +11,12 @@ namespace MapProject.Helpers
 {
     public static class ImageHelper
     {
-        public static void SaveRegionBordersToImage(IEnumerable<Region> regions, string path, int sampling)
+
+        private static string _pointsImagePath = Environment.CurrentDirectory + "/" + "debug_region_points.jpeg";
+        private static string _regionsImagePath = Environment.CurrentDirectory + "/" + "debug_regions.jpeg";
+        private static string _bordersImagePath = Environment.CurrentDirectory + "/" + "debug_region_borders.jpeg";
+
+        public static void SaveRegionBordersToImage(IEnumerable<Region> regions, int sampling)
         {
             if (sampling < 0)
             {
@@ -61,16 +66,16 @@ namespace MapProject.Helpers
 
 
 
-                using (Stream s = new FileStream(path, FileMode.Create))
+                using (Stream s = new FileStream(_bordersImagePath, FileMode.Create))
                 {
                     imageToSave.SaveAsJpeg(s);
 
                 }
             }
         }
-        public static void SavePointsToImage(Model.Point[,] points, string path)
+        public static void SavePointsToImage(Model.Point[,] points)
         {
-            
+
             using (var imageToSave = new Image<Rgba32>(points.GetLength(0), points.GetLength(1)))
             {
                 for (int y = 0; y < points.GetLength(1); y++)
@@ -92,14 +97,14 @@ namespace MapProject.Helpers
                     }
                 }
 
-                using (Stream s = new FileStream(path, FileMode.Create))
+                using (Stream s = new FileStream(_pointsImagePath, FileMode.Create))
                 {
                     imageToSave.SaveAsJpeg(s);
 
                 }
             }
         }
-        public static void SaveRegionsToImage(IEnumerable<Region> regions, string path)
+        public static void SaveRegionsToImage(IEnumerable<Region> regions)
         {
             List<Model.Point> points = new List<Model.Point>();
 
@@ -136,7 +141,43 @@ namespace MapProject.Helpers
 
 
 
-                using (Stream s = new FileStream(path, FileMode.Create))
+                using (Stream s = new FileStream(_regionsImagePath, FileMode.Create))
+                {
+                    imageToSave.SaveAsJpeg(s);
+
+                }
+            }
+        }
+
+        public static void SavePointsToImage(IEnumerable<Model.Point> points)
+        {
+            //List<Model.Point> points = new List<Model.Point>();
+
+            //foreach (var collection in regions.Select(x => x.Points))
+            //{
+            //    points.AddRange(collection);
+            //}
+
+            var maxX = points.Max(x => x.X + 1);
+            var maxY = points.Max(x => x.Y + 1);
+
+            using (var imageToSave = new Image<Rgba32>(maxX, maxY))
+            {
+                Random r = new Random();
+
+
+                foreach (var point in points)
+                {
+                    int y = point.Y;
+                    int x = point.X;
+
+                    Span<Rgba32> pixelsRow = imageToSave.GetPixelRowSpan(y);
+
+                    pixelsRow[x] = Color.White;
+                }
+
+
+                using (Stream s = new FileStream(Environment.CurrentDirectory + "/" + Guid.NewGuid() + ".png", FileMode.Create))
                 {
                     imageToSave.SaveAsJpeg(s);
 

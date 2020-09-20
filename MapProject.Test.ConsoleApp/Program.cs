@@ -1,14 +1,9 @@
 ﻿using MapProject;
-using MapProject.Model;
 using MapProject.Parsing;
+using MapProject.Saving;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MapProject.Saving;
-using Microsoft.Extensions.Logging;
 
 namespace Map.Test.Console
 {
@@ -17,22 +12,12 @@ namespace Map.Test.Console
         static void Main(string[] args)
         {
 
-            var loggerFactory = LoggerFactory.Create(builder => 
-            {
-                builder.AddConsole();
-            });
-
-            ILogger logger = loggerFactory.CreateLogger("MapProject.Console");
-       
-
-            IMapParser mp = new MapParser(logger);
+            IMapParser mp = new MapParser();
             ISaveProvider provider = new JsonFileSystemSaveProvider();
 
-            MapProcessingSettings settings = new MapProcessingSettings();
-
-            Manager manager = new Manager(settings, mp, provider, logger);
-
-
+            Manager manager = new Manager(mp, provider);
+            //System.Console.WriteLine("Hello Gill ;)");
+            
             string[] input;
 
             bool close = false;
@@ -42,7 +27,7 @@ namespace Map.Test.Console
                 input = System.Console.ReadLine().Split(' ');
 
                 string command = input[0];
-                string parameter = String.Empty;
+                string parameter = "";
                 if (input.Length > 1) 
                 {
                     parameter  = input[1];
@@ -73,34 +58,10 @@ namespace Map.Test.Console
                         }
                         break;
 
-                    case "load":
-
-
-                        if (!String.IsNullOrWhiteSpace(parameter))
-                        {
-                            if (!File.Exists(parameter))
-                            {
-                                System.Console.WriteLine("Target map does not exist. Please ensure there is the map with the name specified under the Maps folder");
-                                continue;
-                            }
-
-                            var map = manager.GetMap(parameter);
-
-                            System.Console.WriteLine("Map Loaded: " + map.Name);
-                            System.Console.WriteLine("Map name: " + map.Name);
-                            System.Console.WriteLine("Map regions: " + map.Regions.Count());
-
-
-                            //int i = 0;
-                        }
-                        else
-                        {
-                            System.Console.WriteLine("Target map name cannot be empty. Please specify name of the map you want to open as second parameter");
-                        }
-                        break;
-
                     case "close":
-                        return;
+                        
+                        close = true;
+                        break;
 
                     default:
 

@@ -31,24 +31,16 @@ namespace MapProject.Model
             set;
         }
 
-        public bool Processed
-        {
-            get;
-            set;
-        }
-
         public Point(int x, int y, bool isBorder)
         {
             this.X = x;
             this.Y = y;
             this.IsBorder = isBorder;
-            this.Processed = false;
         }
 
-        public Point(int x, int y, string parentId, bool isBorder, bool processed) : this(x, y, isBorder)
+        public Point(int x, int y, string parentId, bool isBorder) : this(x, y, isBorder)
         {
             this.ParentId = parentId;
-            this.Processed = processed;
         }
     }
 }

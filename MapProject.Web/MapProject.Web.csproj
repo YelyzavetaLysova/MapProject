@@ -1,8 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Maps\testmap.png.map" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Maps\testmap.png.map" />
+  </ItemGroup>
 
 
   <ItemGroup>

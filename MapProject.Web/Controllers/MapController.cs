@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MapProject.Model;
 using MapProject.Parsing;
 using MapProject.Saving;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +25,8 @@ namespace MapProject.Web.Controllers
 
         public IActionResult RenderMap(string mapName)
         {
-           var map = this._manager.GetMap(mapName);
+            
+            Map map = this._manager.GetMap(mapName);
             return View(map);
         }
 
