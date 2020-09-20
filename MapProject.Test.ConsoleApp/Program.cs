@@ -16,8 +16,8 @@ namespace Map.Test.Console
             ISaveProvider provider = new JsonFileSystemSaveProvider();
 
             Manager manager = new Manager(mp, provider);
-            //System.Console.WriteLine("Hello Gill ;)");
-            
+
+
             string[] input;
 
             bool close = false;
