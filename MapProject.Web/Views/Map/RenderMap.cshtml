@@ -11,20 +11,55 @@
     <title>RenderMap</title>
 </head>
 <body>
-    <svg height="1000" width="2000">
+    <svg height="5000px" width="5000px">
         @{
 
             foreach (var region in Model.Regions)
             {
 
-                <g id="@region.Id">
+                <g>
 
-                    @foreach (var point in region.Points.Where(x => x.IsBorder))
-                    {
-                    <circle cx="@point.X" cy="@point.Y" r="1" />
-                    //points += point.X + " " + point.Y + ",";
+
+                    @{
+
+                        string points = String.Empty;
                     }
-                    @*<polygon points="@points.Remove(points.Length - 1)" />*@
+
+                    @for (int i = 0; i < region.Points.Count; i++)
+                    {
+
+                        var point = region.Points[i];
+
+                        points += point.X + "," + point.Y + " ";
+
+                        @*
+
+                            if (i % 2 == 0)
+                            {
+
+                                if (point.IsBorder)
+                                {
+                                <circle cx="@point.X" cy="@point.Y" r="1" />
+                                }
+                            }*@
+                        @*else
+                            {
+                                <circle cx="@point.X" cy="@point.Y" r="1" color="red" />
+                            }*@
+
+
+                    }
+
+                    @*@foreach (var point in region.Points.Where(x => x.IsBorder))
+                        {
+
+
+                            <circle cx="@point.X" cy="@point.Y" r="1" />
+                            //points += point.X + " " + point.Y + ",";
+                        }
+                        <polygon points="@points.Remove(points.Length - 1)" />*@
+
+                    <polyline id="@region.Id" points="@points.Remove(points.Length - 1)" fill="white" stroke="black" onclick="regionOnClickHandler(this.id)" />
 
                 </g>
             }
@@ -32,5 +67,38 @@
 
         }
     </svg>
+
+    <script>
+        function regionOnClickHandler(clicked_id)
+        {
+            //window.alert("I am region " + clicked_id);  
+
+            var element = document.getElementById(clicked_id);
+
+            if (element.getAttribute("fill") == "white") {
+
+                element.setAttribute("fill", "red");
+
+                return;
+            }
+
+            if (element.getAttribute("fill") == "red") {
+
+                element.setAttribute("fill", "green");
+
+                return;
+            }
+
+            if (element.getAttribute("fill") == "green") {
+
+                element.setAttribute("fill", "white");
+
+                return;
+            }
+
+            //element.setAttribute("fill", "red");
+        }
+    </script>
+
 </body>
 </html>
