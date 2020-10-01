@@ -8,13 +8,13 @@ using Newtonsoft.Json;
 
 namespace MapProject.Saving
 {
-    public class JsonFileSystemSaveProvider : ISaveProvider
+    public class JsonFileSystemMapProvider : IMapProvider
     {
 
         private string _path = Environment.CurrentDirectory + "/Maps";
         private string _extention = ".map";
         
-        public JsonFileSystemSaveProvider()
+        public JsonFileSystemMapProvider()
         {
             if(!Directory.Exists(this._path))
             {

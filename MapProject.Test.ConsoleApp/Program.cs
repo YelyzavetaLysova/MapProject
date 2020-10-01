@@ -1,6 +1,8 @@
 ﻿using MapProject;
 using MapProject.Parsing;
 using MapProject.Saving;
+using MapProject.Statistic;
+using MapProject.Statistic.FileSystem;
 using System;
 using System.IO;
 using System.Linq;
@@ -12,10 +14,11 @@ namespace Map.Test.Console
         static void Main(string[] args)
         {
 
-            IMapParser mp = new MapParser();
-            ISaveProvider provider = new JsonFileSystemSaveProvider();
+            IMapParser mapParser = new MapParser();
+            IMapProvider mapProvider = new JsonFileSystemMapProvider();
+            IStatisticProvider statisticProvider = new JsonFyleSystemStatisticProvider();
 
-            Manager manager = new Manager(mp, provider);
+            Manager manager = new Manager(mapParser, mapProvider, statisticProvider);
 
 
             string[] input;
@@ -50,7 +53,30 @@ namespace Map.Test.Console
                                 continue;
                             }
 
-                            manager.SaveMap(manager.PrarseMapFromImage(parameter));
+                            MapProject.Model.Map map = manager.PrarseMapFromImage(parameter);
+
+                            manager.SaveMap(map);
+
+                            DataSet set = new DataSet("my new set");
+
+                            DataItem mainDataItem = new DataItem(map.Name);
+
+                            Property p1 = new Property("Name", "Map1");
+                            Property p2 = new Property("Description", "This property was added for testing purposes only");
+                            mainDataItem.Properties.Add(p1);
+                            mainDataItem.Properties.Add(p2);
+
+
+                            Statistic s1 = new Statistic("RegionCount", map.Regions.Count());
+
+                            mainDataItem.Statistics.Add(s1);
+
+                            set.StructureDatas.Add(mainDataItem);
+
+                            manager.SaveDataSet(set, map);
+                            
+
+
                         }
                         else
                         {

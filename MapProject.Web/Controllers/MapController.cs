@@ -14,7 +14,7 @@ namespace MapProject.Web.Controllers
         Manager _manager;
         public MapController()
         {
-            ISaveProvider saveProvider = new JsonFileSystemSaveProvider();
+            IMapProvider saveProvider = new JsonFileSystemMapProvider();
             IMapParser mapParser = new MapParser();
             this._manager = new Manager(mapParser, saveProvider);
         }
@@ -38,5 +38,20 @@ namespace MapProject.Web.Controllers
 
             return View(listOfMaps);
         }
+
+
+        [HttpGet]
+        public IActionResult AddStatisticKey()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult AddStatisticKey(string parameter)
+        {
+
+            return View();
+        }
+
     }
 }

@@ -5,6 +5,8 @@ using MapProject.Parsing;
 using MapProject.Model;
 using System.Linq;
 using MapProject.Saving;
+using MapProject.Statistic;
+using System;
 
 namespace MapProject
 {
@@ -12,12 +14,14 @@ namespace MapProject
     {
 
         IMapParser _parser;
-        ISaveProvider _provider;
+        IMapProvider _mapProvider;
+        IStatisticProvider _statisticProvider;
         
-        public Manager(IMapParser parser, ISaveProvider provider)
+        public Manager(IMapParser parser, IMapProvider mapProvider, IStatisticProvider statisticProvider)
         {
             this._parser = parser;
-            this._provider = provider;
+            this._mapProvider = mapProvider;
+            this._statisticProvider = statisticProvider;
         }
 
         public Map PrarseMapFromImage(string pathToImage)
@@ -36,21 +40,34 @@ namespace MapProject
 
         public Map GetMap(string name)
         {
-            return this._provider.GetMap(name);
+            return this._mapProvider.GetMap(name);
         }
 
         public void SaveMap(Map map)
         {
-            this._provider.SaveMap(map);
+            this._mapProvider.SaveMap(map);
         }
 
         public List<string> GetMaps()
         {
-           
-
-            return this._provider.GetMaps();
-            
+            return this._mapProvider.GetMaps();
         }
 
+
+        public List<DataSet> GetDataSets(Map map)
+        {
+            return this._statisticProvider.GetDataSets(map);
+        }
+
+
+        public DataSet GetDataSet(string dataSetKey, Map map)
+        {
+            return this._statisticProvider.GetDataSet(dataSetKey, map);
+        }
+
+        public void SaveDataSet(DataSet dataSet, Map map)
+        {
+            this._statisticProvider.SaveDataSet(dataSet, map);
+        }
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace MapProject.Saving
 {
-    public interface ISaveProvider
+    public interface IMapProvider
     {
         Map GetMap(string name);
 

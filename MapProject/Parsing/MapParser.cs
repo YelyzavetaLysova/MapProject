@@ -60,7 +60,7 @@ namespace MapProject.Parsing
 
                         List<Model.Point> states = new List<Model.Point>() { point };
                         List<Model.Point> borders = new List<Model.Point>();
-
+                        
                         do
                         {
                             this.ProcessPoint(states.First(), r, states, borders);

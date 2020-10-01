@@ -28,6 +28,9 @@
                     @for (int i = 0; i < region.Points.Count; i++)
                     {
 
+                        //if (i % 3 == 0)
+                        //{
+
                         var point = region.Points[i];
 
                         points += point.X + "," + point.Y + " ";
@@ -46,7 +49,7 @@
                             {
                                 <circle cx="@point.X" cy="@point.Y" r="1" color="red" />
                             }*@
-
+                        @*  *@}
 
                     }
 
@@ -90,6 +93,20 @@
             }
 
             if (element.getAttribute("fill") == "green") {
+
+                element.setAttribute("fill", "blue");
+
+                return;
+            }
+
+            if (element.getAttribute("fill") == "blue") {
+
+                element.setAttribute("fill", "yellow");
+
+                return;
+            }
+
+            if (element.getAttribute("fill") == "yellow") {
 
                 element.setAttribute("fill", "white");
 
