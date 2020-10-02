@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapProject", "MapProject\Ma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapProject.Test.ConsoleApp", "MapProject.Test.ConsoleApp\MapProject.Test.ConsoleApp.csproj", "{7EC52476-85AD-42AD-9C0B-AB69DC35D926}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapProject.Web", "MapProject.Web\MapProject.Web.csproj", "{99DA3F52-DA50-4FB9-B501-E98009EE8AF6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapProject.Web", "MapProject.Web\MapProject.Web.csproj", "{99DA3F52-DA50-4FB9-B501-E98009EE8AF6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

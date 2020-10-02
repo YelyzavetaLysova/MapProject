@@ -1,20 +1,11 @@
 ﻿@model IEnumerable<string>
 @{
-    Layout = null;
+    ViewBag.Title = "MapProject - List of maps";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!DOCTYPE html>
+@foreach (string map in Model)
+{
+    <a href="/Map/RenderMap?mapName=@map">@map</a>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>RenderMaps</title>
-</head>
-<body>
-    @foreach(string map in Model)
-    {
-        <a href ="/Map/RenderMap?mapName=@map">@map</a>
-
-    }
-</body>
-</html>
+}

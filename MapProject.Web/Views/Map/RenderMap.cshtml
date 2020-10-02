@@ -1,16 +1,25 @@
 ﻿@model MapProject.Model.Map
+
 @{
-    Layout = null;
+    ViewBag.Title = "MapProject - " + Model.Name;
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!DOCTYPE html>
+    <div class="container">
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>RenderMap</title>
-</head>
-<body>
+        <div class="row">
+            <div class="col-sm">
+                One of three columns
+            </div>
+            <div class="col-sm">
+                One of three columns
+            </div>
+            <div class="col-sm">
+                One of three columns
+            </div>
+        </div>
+    </div>
+
     <svg height="5000px" width="5000px">
         @{
 
@@ -18,8 +27,6 @@
             {
 
                 <g>
-
-
                     @{
 
                         string points = String.Empty;
@@ -28,41 +35,12 @@
                     @for (int i = 0; i < region.Points.Count; i++)
                     {
 
-                        //if (i % 3 == 0)
-                        //{
-
                         var point = region.Points[i];
 
                         points += point.X + "," + point.Y + " ";
-
-                        @*
-
-                            if (i % 2 == 0)
-                            {
-
-                                if (point.IsBorder)
-                                {
-                                <circle cx="@point.X" cy="@point.Y" r="1" />
-                                }
-                            }*@
-                        @*else
-                            {
-                                <circle cx="@point.X" cy="@point.Y" r="1" color="red" />
-                            }*@
-                        @*  *@}
-
                     }
 
-                    @*@foreach (var point in region.Points.Where(x => x.IsBorder))
-                        {
-
-
-                            <circle cx="@point.X" cy="@point.Y" r="1" />
-                            //points += point.X + " " + point.Y + ",";
-                        }
-                        <polygon points="@points.Remove(points.Length - 1)" />*@
-
-                    <polyline id="@region.Id" points="@points.Remove(points.Length - 1)" fill="white" stroke="black" onclick="regionOnClickHandler(this.id)" />
+                    <polygon id="@region.Id" points="@points.Remove(points.Length - 1)" fill="white" stroke="black" onclick="regionOnClickHandler(this.id)" />
 
                 </g>
             }
@@ -72,9 +50,8 @@
     </svg>
 
     <script>
-        function regionOnClickHandler(clicked_id)
-        {
-            //window.alert("I am region " + clicked_id);  
+        function regionOnClickHandler(clicked_id) {
+            //window.alert("I am region " + clicked_id);
 
             var element = document.getElementById(clicked_id);
 
@@ -117,5 +94,3 @@
         }
     </script>
 
-</body>
-</html>

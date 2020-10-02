@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using MapProject.Model;
 using MapProject.Parsing;
 using MapProject.Saving;
+using MapProject.Statistic;
+using MapProject.Statistic.FileSystem;
+using MapProject.Web.Models;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MapProject.Web.Controllers
@@ -12,22 +18,83 @@ namespace MapProject.Web.Controllers
     public class MapController : Controller
     {
         Manager _manager;
-        public MapController()
+        IWebHostEnvironment _hostingEnvironment;
+
+        public MapController(IWebHostEnvironment hostingEnvironment)
         {
+
+            this._hostingEnvironment = hostingEnvironment;
+
             IMapProvider saveProvider = new JsonFileSystemMapProvider();
             IMapParser mapParser = new MapParser();
-            this._manager = new Manager(mapParser, saveProvider);
+            IStatisticProvider statisticProvider = new JsonFyleSystemStatisticProvider();
+            
+            this._manager = new Manager(mapParser, saveProvider, statisticProvider);
         }
         public IActionResult Index()
         {
             return View();
         }
 
+
+        //public async Task<IActionResult> OnPostUploadAsync(List<IFormFile> battlePlans)
+        //{
+
+        //}
+
         public IActionResult RenderMap(string mapName)
         {
-            
             Map map = this._manager.GetMap(mapName);
             return View(map);
+        }
+
+        [HttpPost]
+        public IActionResult CreateMap(IFormFile mapImageFile)
+        {
+            CreateMapModel model = null;
+
+            if (mapImageFile != null)
+            {
+                var folder = Path.Combine(this._hostingEnvironment.ContentRootPath, "tmp");
+
+                if (!Directory.Exists(folder))
+                {
+                    Directory.CreateDirectory(folder);
+                }
+
+                var filePath = Path.Combine(folder, mapImageFile.FileName);
+
+                if (mapImageFile.Length > 0)
+                {
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        mapImageFile.CopyTo(fileStream);
+                    }
+
+
+                }
+
+                model = new CreateMapModel(filePath);
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult CreateMap()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ParseMapFromImage(string imageFilePath)
+        {
+            var map = this._manager.PrarseMapFromImage(imageFilePath);
+
+            this._manager.SaveMap(map);
+
+            return View("CreateMap");
         }
 
         public IActionResult RenderMaps()
@@ -40,18 +107,6 @@ namespace MapProject.Web.Controllers
         }
 
 
-        [HttpGet]
-        public IActionResult AddStatisticKey()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult AddStatisticKey(string parameter)
-        {
-
-            return View();
-        }
-
+        
     }
 }
