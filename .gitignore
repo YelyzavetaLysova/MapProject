@@ -341,4 +341,4 @@ healthchecksdb
 
 #MapProject .map iles
 *.map
-
+tmp/
