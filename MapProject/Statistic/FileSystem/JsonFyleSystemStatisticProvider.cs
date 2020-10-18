@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace MapProject.Statistic.FileSystem
@@ -69,21 +70,17 @@ namespace MapProject.Statistic.FileSystem
         }
 
 
-        public List<DataSet> GetDataSets(Map map)
+        public List<string> GetDataSets(Map map)
         {
-            string mapFolder = this.GenerateMapFolderPath(map.Name);
 
-            string[] files = Directory.GetFiles(mapFolder, "*." + this._dataSetExtention);
+            string mapFolderPath = this.GenerateMapFolderPath(map.Name);
 
-            List<DataSet> results = new List<DataSet>();
-
-
-            foreach(var file in files)
+            if (!Directory.Exists(mapFolderPath))
             {
-                results.Add(this.GetDataSet(Path.GetFileNameWithoutExtension(file), map));
+                return new List<string>();
             }
 
-            return results;
+            return Directory.GetFiles(mapFolderPath, "*." + this._dataSetExtention).Select(x => Path.GetFileNameWithoutExtension(x)).ToList();
         }
     }
 }

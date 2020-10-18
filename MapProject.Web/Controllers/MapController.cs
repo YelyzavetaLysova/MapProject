@@ -42,10 +42,32 @@ namespace MapProject.Web.Controllers
 
         //}
 
-        public IActionResult RenderMap(string mapName)
+        public IActionResult RenderMap(string mapName, string dataSetName)
         {
             Map map = this._manager.GetMap(mapName);
-            return View(map);
+
+            List<string> dataSetNames = this._manager.GetDataSets(map);
+
+            DataSet dataSet = null;
+
+            if (!String.IsNullOrWhiteSpace(dataSetName))
+            {
+                dataSet = this._manager.GetDataSet(dataSetName, map);
+            }
+
+            RenderMapModel renderMapModel = new RenderMapModel(map, dataSetNames, dataSet);
+
+            return View("RenderMap", renderMapModel);
+        }
+
+        public IActionResult CreateDataSet(string dataSetName, string mapName)
+        {
+            DataSet dataSet = new DataSet(dataSetName);
+
+            this._manager.SaveDataSet(dataSet, this._manager.GetMap(mapName));
+
+
+            return this.RenderMap(mapName, dataSetName);
         }
 
         [HttpPost]

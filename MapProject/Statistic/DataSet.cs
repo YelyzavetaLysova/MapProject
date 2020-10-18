@@ -13,7 +13,7 @@ namespace MapProject.Statistic
             set;
         }
 
-        public List<DataItem> StructureDatas
+        public List<DataItem> DataItems
         {
             get;
             set;
@@ -21,7 +21,7 @@ namespace MapProject.Statistic
 
         public DataSet()
         {
-            this.StructureDatas = new List<DataItem>();
+            this.DataItems = new List<DataItem>();
         }
 
         public DataSet(string key) : this()
@@ -31,7 +31,7 @@ namespace MapProject.Statistic
 
         public DataSet(string key, List<DataItem> datas) : this(key)
         {
-            this.StructureDatas = datas;
+            this.DataItems = datas;
         }
     }
 }

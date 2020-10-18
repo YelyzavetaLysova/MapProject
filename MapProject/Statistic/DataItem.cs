@@ -12,19 +12,19 @@ namespace MapProject.Statistic
             private set;
         }
 
-        public List<Property> Properties
+        public List<DataProperty<string>> Properties
         {
             get;
             private set;
         }
 
-        public List<Statistic> Statistics
+        public List<DataProperty<double>> Statistics
         {
             get;
             private set;
         }
 
-        public List<Attachment> Attachments
+        public List<DataProperty<string>> Attachments
         {
             get;
             private set;
@@ -34,9 +34,9 @@ namespace MapProject.Statistic
         {
             this.StructureId = structureId;
 
-            this.Properties = new List<Property>();
-            this.Statistics = new List<Statistic>();
-            this.Attachments = new List<Attachment>();
+            this.Properties = new List<DataProperty<string>>();
+            this.Statistics = new List<DataProperty<double>>();
+            this.Attachments = new List<DataProperty<string>>();
         }
     }
 }

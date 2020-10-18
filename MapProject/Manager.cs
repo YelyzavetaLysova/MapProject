@@ -54,7 +54,7 @@ namespace MapProject
         }
 
 
-        public List<DataSet> GetDataSets(Map map)
+        public List<string> GetDataSets(Map map)
         {
             return this._statisticProvider.GetDataSets(map);
         }

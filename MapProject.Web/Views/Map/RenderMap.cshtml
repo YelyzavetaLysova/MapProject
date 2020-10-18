@@ -1,96 +1,119 @@
-﻿@model MapProject.Model.Map
+﻿@model MapProject.Web.Models.RenderMapModel
+
 
 @{
-    ViewBag.Title = "MapProject - " + Model.Name;
+    ViewBag.Title = "MapProject - " + Model.Map.Name;
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-    <div class="container">
+<div class="container">
 
-        <div class="row">
-            <div class="col-sm">
-                One of three columns
-            </div>
-            <div class="col-sm">
-                One of three columns
-            </div>
-            <div class="col-sm">
-                One of three columns
-            </div>
-        </div>
-    </div>
+    <div class="row">
+        <div class="col-sm">
+            <svg height="250px" width="250px">
+                @{
 
-    <svg height="5000px" width="5000px">
-        @{
-
-            foreach (var region in Model.Regions)
-            {
-
-                <g>
-                    @{
-
-                        string points = String.Empty;
-                    }
-
-                    @for (int i = 0; i < region.Points.Count; i++)
+                    foreach (var region in Model.Map.Regions)
                     {
 
-                        var point = region.Points[i];
+                        <g>
+                            @{
 
-                        points += point.X + "," + point.Y + " ";
+                                string points = String.Empty;
+                            }
+
+                            @for (int i = 0; i < region.Points.Count; i++)
+                            {
+
+                                var point = region.Points[i];
+
+                                points += point.X + "," + point.Y + " ";
+                            }
+
+                            <polygon id="@region.Id" points="@points.Remove(points.Length - 1)" fill="white" stroke="black" onclick="regionOnClickHandler(this.id)" />
+
+                        </g>
                     }
 
-                    <polygon id="@region.Id" points="@points.Remove(points.Length - 1)" fill="white" stroke="black" onclick="regionOnClickHandler(this.id)" />
 
-                </g>
+                }
+            </svg>
+        </div>
+
+        <div class="col-sm">
+
+            @{ 
+                string currentDataSet = Model.DataSet == null ? "Data set is not loaded" : Model.DataSet.Key;
             }
 
+            <p>Current data set: @currentDataSet</p>
 
+
+            <p>Select from existing data sets:</p>
+
+            <p>#ToDo: dropdown to select from existing datasets</p>
+
+            <div>Create new data set for map @Model.Map.Name</div>
+
+            @{
+
+                <form id="createNewDataSetForm" asp-controller="Map" asp-action="CreateDataSet" method="post">
+
+                    <input type="text" name="dataSetName" />
+                    <input type="text" name="mapName" value="@Model.Map.Name" hidden />
+                    <button type="submit">Create Data Set</button>
+
+                </form>
+            }
+
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    function regionOnClickHandler(clicked_id) {
+        //window.alert("I am region " + clicked_id);
+
+        var element = document.getElementById(clicked_id);
+
+        if (element.getAttribute("fill") == "white") {
+
+            element.setAttribute("fill", "red");
+
+            return;
         }
-    </svg>
 
-    <script>
-        function regionOnClickHandler(clicked_id) {
-            //window.alert("I am region " + clicked_id);
+        if (element.getAttribute("fill") == "red") {
 
-            var element = document.getElementById(clicked_id);
+            element.setAttribute("fill", "green");
 
-            if (element.getAttribute("fill") == "white") {
-
-                element.setAttribute("fill", "red");
-
-                return;
-            }
-
-            if (element.getAttribute("fill") == "red") {
-
-                element.setAttribute("fill", "green");
-
-                return;
-            }
-
-            if (element.getAttribute("fill") == "green") {
-
-                element.setAttribute("fill", "blue");
-
-                return;
-            }
-
-            if (element.getAttribute("fill") == "blue") {
-
-                element.setAttribute("fill", "yellow");
-
-                return;
-            }
-
-            if (element.getAttribute("fill") == "yellow") {
-
-                element.setAttribute("fill", "white");
-
-                return;
-            }
-
-            //element.setAttribute("fill", "red");
+            return;
         }
-    </script>
+
+        if (element.getAttribute("fill") == "green") {
+
+            element.setAttribute("fill", "blue");
+
+            return;
+        }
+
+        if (element.getAttribute("fill") == "blue") {
+
+            element.setAttribute("fill", "yellow");
+
+            return;
+        }
+
+        if (element.getAttribute("fill") == "yellow") {
+
+            element.setAttribute("fill", "white");
+
+            return;
+        }
+
+        //element.setAttribute("fill", "red");
+    }
+</script>
 

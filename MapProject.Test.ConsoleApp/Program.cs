@@ -61,21 +61,23 @@ namespace Map.Test.Console
 
                             DataItem mainDataItem = new DataItem(map.Name);
 
-                            Property p1 = new Property("Name", "Map1");
-                            Property p2 = new Property("Description", "This property was added for testing purposes only");
+                            DataProperty<string> p1 = new DataProperty<string>("Name", "Map1");
+                            DataProperty<string> p2 = new DataProperty<string>("Description", "This property was added for testing purposes only");
                             mainDataItem.Properties.Add(p1);
                             mainDataItem.Properties.Add(p2);
 
 
-                            Statistic s1 = new Statistic("RegionCount", map.Regions.Count());
+                            DataProperty<double> s1 = new DataProperty<double>("RegionCount", map.Regions.Count());
 
                             mainDataItem.Statistics.Add(s1);
 
-                            set.StructureDatas.Add(mainDataItem);
+                            set.DataItems.Add(mainDataItem);
 
                             manager.SaveDataSet(set, map);
-                            
 
+                            var datasets = manager.GetDataSet("my new set", map);
+
+                            int i = 0;
 
                         }
                         else

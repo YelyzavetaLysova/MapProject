@@ -13,6 +13,6 @@ namespace MapProject.Statistic
 
         void RemoveDataSet(string dataSetKey, Map map);
 
-        List<DataSet> GetDataSets(Map map);
+        List<string> GetDataSets(Map map);
     }
 }

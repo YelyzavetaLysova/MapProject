@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MapProject.Statistic
 {
-    public class Attachment : BaseDataProperty<string>
+    public class Attachment : DataProperty<string>
     {
         public Attachment(string fileName, string filePath) : base(fileName, filePath)
         {

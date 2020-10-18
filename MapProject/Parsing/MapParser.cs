@@ -37,7 +37,7 @@ namespace MapProject.Parsing
                 }
             }
 
-            ImageHelper.SavePointsToImage(this._points);
+            //ImageHelper.SavePointsToImage(this._points);
 
 
             int counter = 0;
@@ -82,11 +82,11 @@ namespace MapProject.Parsing
 
             regions.RemoveAll(x => x.Points.Count() < 200);
 
-            ImageHelper.SaveRegionsToImage(regions);
+            //ImageHelper.SaveRegionsToImage(regions);
 
 
 
-            ImageHelper.SaveRegionBordersToImage(regions, 100);
+            //ImageHelper.SaveRegionBordersToImage(regions, 100);
 
             Console.WriteLine("Borders pre-processing started...");
 
@@ -155,10 +155,10 @@ namespace MapProject.Parsing
                 //int i = 0;
                 Console.WriteLine("I am workingre...");
 
-                foreach (var contur in sealedConturs)
-                {
-                    ImageHelper.SavePointsToImage(contur.PointsList);
-                }
+                //foreach (var contur in sealedConturs)
+                //{
+                //    ImageHelper.SavePointsToImage(contur.PointsList);
+                //}
 
                 region.Points.Clear();
 

@@ -31,5 +31,9 @@ namespace MapProject.Web.Models
         {
             this.FilePath = pathToImage;
         }
+
+        public CreateMapModel()
+        {
+        }
     }
 }

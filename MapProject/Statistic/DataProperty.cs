@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MapProject.Statistic
 {
-    public class BaseDataProperty<T>
+    public class DataProperty<T>
     {
         public string Key
         {
@@ -18,7 +18,7 @@ namespace MapProject.Statistic
             private set;
         }
 
-        public BaseDataProperty(string key, T value)
+        public DataProperty(string key, T value)
         {
             this.Key = key;
             this.Value = value;
