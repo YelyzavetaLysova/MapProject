@@ -1,0 +1,46 @@
+﻿@model MapProject.Statistic.DataItem
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+
+@if (Model != null)
+{
+    <div id="regionProperties">
+
+        Properties:
+
+        @foreach (var property in Model.Properties)
+        {
+            <p>Property: @property.Name, value: @property.Value</p>
+        }
+
+    </div>
+
+    <div id="regionStatistics">
+
+        Statistics:
+
+        @foreach (var property in Model.Statistics)
+        {
+            <p>Property: @property.Name, value: @property.Value</p>
+        }
+
+    </div>
+
+    <div id="regionAttachments">
+
+        Files:
+
+        @foreach (var property in Model.Statistics)
+        {
+            <p>Property: @property.Name, value: @property.Value</p>
+        }
+
+    </div>
+}
+else
+{
+    <p>No data items associated with the region</p>
+}
+

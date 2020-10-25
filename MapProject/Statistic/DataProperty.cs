@@ -6,7 +6,7 @@ namespace MapProject.Statistic
 {
     public class DataProperty<T>
     {
-        public string Key
+        public string Name
         {
             get;
             private set;
@@ -15,12 +15,12 @@ namespace MapProject.Statistic
         public T Value
         {
             get;
-            private set;
+            set;
         }
 
-        public DataProperty(string key, T value)
+        public DataProperty(string name, T value)
         {
-            this.Key = key;
+            this.Name = name;
             this.Value = value;
         }
     }

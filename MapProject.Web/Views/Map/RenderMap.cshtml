@@ -6,11 +6,44 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+
+<div id="jsonDataSet" hidden>@Model.JsonDataSet</div>
+
+@{
+    string currentDataSet = Model.DataSet == null ? "Data set is not loaded" : Model.DataSet.Key;
+    bool dataSetNull = this.Model.DataSet == null;
+    string dataSetId = Model.DataSet == null ? String.Empty : Model.DataSet.Key;
+}
+
+
 <div class="container">
 
     <div class="row">
+
+        <div class="col-sm" id="regionInfo">
+
+
+            <div id="currentRegionId" hidden></div>
+
+            <form hidden="@dataSetNull" id="createNewPropertyForm" asp-controller="Map" asp-action="SaveProperty" method="post">
+
+                <input type="text" name="propertyName" />
+                <input type="text" name="propertyValue" />
+                <input type="text" name="dataSetKey" value="@currentDataSet" hidden />
+                <input type="text" name="mapName" value="@Model.Map.Name" hidden />
+                <input type="text" name="regionId" id="regionIdInput" hidden />
+
+                <button type="submit">Save Property</button>
+
+            </form>
+
+            <div id="regionProperties">
+            </div>
+
+        </div>
+
         <div class="col-sm">
-            <svg height="250px" width="250px">
+            <svg height="500px" width="500px">
                 @{
 
                     foreach (var region in Model.Map.Regions)
@@ -42,16 +75,32 @@
 
         <div class="col-sm">
 
-            @{ 
-                string currentDataSet = Model.DataSet == null ? "Data set is not loaded" : Model.DataSet.Key;
-            }
+
 
             <p>Current data set: @currentDataSet</p>
 
 
             <p>Select from existing data sets:</p>
 
-            <p>#ToDo: dropdown to select from existing datasets</p>
+
+            <form id="createNewDataSetForm" asp-controller="Map" asp-action="LoadDataSet" method="post">
+
+                <select name="dataSetName">
+                    @{
+                        foreach (var dataSet in Model.DataSetNames)
+                        {
+
+                            <option>@dataSet</option>
+                        }
+                    }
+                </select>
+
+                <input type="text" name="mapName" value="@Model.Map.Name" hidden />
+                <button type="submit">Load Data Set</button>
+
+            </form>
+
+
 
             <div>Create new data set for map @Model.Map.Name</div>
 
@@ -73,10 +122,51 @@
 
 
 <script>
+
+    function loadRegionProperties(regionId) {
+
+
+        var dataSetId = "@dataSetId"
+
+        if (dataSetId != "") {
+
+            $.ajax({
+                url: "/Map/GetAllProperties",
+                data: "regionId=" + regionId + "&dataSetName=@dataSetId&mapName=@Model.Map.Name",
+                success: function (htmlToInsert) {
+
+                    $("#regionProperties").html(htmlToInsert)
+
+                }
+            })
+        }
+    }
+
+
+
     function regionOnClickHandler(clicked_id) {
         //window.alert("I am region " + clicked_id);
 
+
         var element = document.getElementById(clicked_id);
+
+        var currentRegionIdElement = document.getElementById("currentRegionId");
+
+        if (currentRegionIdElement != null) {
+
+            currentRegionIdElement.innerText = clicked_id;
+
+            var regionIdInput = document.getElementById("regionIdInput");
+
+            regionIdInput.value = clicked_id;
+
+
+            document.getElementById("createNewPropertyForm").hidden = false;
+
+        }
+
+        loadRegionProperties(clicked_id);
+
 
         if (element.getAttribute("fill") == "white") {
 
@@ -115,5 +205,15 @@
 
         //element.setAttribute("fill", "red");
     }
+
+
+
+
+
+
 </script>
+
+
+
+
 

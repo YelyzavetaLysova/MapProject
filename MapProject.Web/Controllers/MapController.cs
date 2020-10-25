@@ -12,6 +12,7 @@ using MapProject.Web.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace MapProject.Web.Controllers
 {
@@ -42,11 +43,16 @@ namespace MapProject.Web.Controllers
 
         //}
 
+        //public 
+
+
         public IActionResult RenderMap(string mapName, string dataSetName)
         {
             Map map = this._manager.GetMap(mapName);
 
             List<string> dataSetNames = this._manager.GetDataSets(map);
+
+            
 
             DataSet dataSet = null;
 
@@ -55,7 +61,7 @@ namespace MapProject.Web.Controllers
                 dataSet = this._manager.GetDataSet(dataSetName, map);
             }
 
-            RenderMapModel renderMapModel = new RenderMapModel(map, dataSetNames, dataSet);
+            RenderMapModel renderMapModel = new RenderMapModel(map, dataSetNames, dataSet, JsonConvert.SerializeObject(dataSet));
 
             return View("RenderMap", renderMapModel);
         }
@@ -67,6 +73,11 @@ namespace MapProject.Web.Controllers
             this._manager.SaveDataSet(dataSet, this._manager.GetMap(mapName));
 
 
+            return this.RenderMap(mapName, dataSetName);
+        }
+
+        public IActionResult LoadDataSet(string dataSetName, string mapName)
+        {
             return this.RenderMap(mapName, dataSetName);
         }
 
@@ -128,7 +139,53 @@ namespace MapProject.Web.Controllers
             return View(listOfMaps);
         }
 
+        public IActionResult SaveProperty(string propertyName, string propertyValue, string dataSetKey, string mapName, string regionId)
+        {
+           
+            var map = this._manager.GetMap(mapName);
+           
+            var dataSet = this._manager.GetDataSet(dataSetKey, map);
 
-        
+            if (!String.IsNullOrWhiteSpace(regionId))
+            {
+                var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+
+                if (dataItem == null)
+                {
+                    dataItem = new DataItem(regionId);
+                }
+
+                var property = dataItem.Properties.FirstOrDefault(x => x.Name == propertyName);
+
+                if (property == null)
+                {
+                    property = new DataProperty<string>(propertyName, propertyValue);
+                    dataItem.Properties.Add(property);
+                }
+                else
+                {
+                    property.Value = propertyValue;
+                }
+
+
+
+                dataSet.DataItems.Add(dataItem);
+
+                this._manager.SaveDataSet(dataSet, map);
+            }
+
+            return this.RenderMap(mapName, dataSetKey);
+        }
+
+        public IActionResult GetAllProperties(string regionId, string dataSetName, string mapName)
+        {
+            var map = this._manager.GetMap(mapName);
+
+            var dataSet = this._manager.GetDataSet(dataSetName, map);
+
+            return PartialView(dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId));
+
+        }
+
     }
 }

@@ -80,7 +80,7 @@ namespace MapProject.Statistic.FileSystem
                 return new List<string>();
             }
 
-            return Directory.GetFiles(mapFolderPath, "*." + this._dataSetExtention).Select(x => Path.GetFileNameWithoutExtension(x)).ToList();
+            return Directory.GetFiles(mapFolderPath, "*" + this._dataSetExtention).Select(x => Path.GetFileNameWithoutExtension(x)).ToList();
         }
     }
 }
