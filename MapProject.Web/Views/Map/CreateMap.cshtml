@@ -4,28 +4,32 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>CreateMap</h1>
+<div class="row" id="createMapsForm">
 
-@{
-    if (Model == null)
-    {
-        <form asp-controller="Map" asp-action="CreateMap" method="post" enctype="multipart/form-data">
+    <h1>CreateMap</h1>
 
-            <input type="file" name="mapImageFile" />
-            <button type="submit">Upload File</button>
+    @{
+        if (Model == null)
+        {
+            <form asp-controller="Map" asp-action="CreateMap" method="post" enctype="multipart/form-data">
 
-        </form>
+                <input type="file" name="mapImageFile" />
+                <button type="submit">Upload File</button>
 
+            </form>
+
+        }
+        else
+        {
+            <div>File uploaded - @Model.FileName</div>
+
+            <form asp-controller="Map" asp-action="ParseMapFromImage" method="post" enctype="multipart/form-data">
+
+                <input type="text" name="imageFilePath" value="@Model.FilePath" hidden />
+                <button type="submit">Parse map</button>
+
+            </form>
+        }
     }
-    else
-    {
-        <div>File uploaded - @Model.FileName</div>
 
-        <form asp-controller="Map" asp-action="ParseMapFromImage" method="post" enctype="multipart/form-data">
-
-            <input type="text" name="imageFilePath" value="@Model.FilePath" hidden />
-            <button type="submit">Parse map</button>
-
-        </form>
-    }
-}
+    </div>

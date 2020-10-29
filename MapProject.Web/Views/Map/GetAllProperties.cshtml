@@ -1,29 +1,35 @@
-﻿@model MapProject.Statistic.DataItem
+﻿@model MapProject.Web.Models.GetAllPropertiesModel
 @*
     For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 *@
 
 
+<hr />
+
+<h5>Region properties:</h5>
+
 @if (Model != null)
 {
     <div id="regionProperties">
 
-        Properties:
+        <h5>Properties:</h5>
 
-        @foreach (var property in Model.Properties)
+        @foreach (var property in Model.DataItem.Properties)
         {
-            <p>Property: @property.Name, value: @property.Value</p>
+            <p><div type="property" class="alert alert-light property" onclick="dataPropertyClick($(this), false)" name="@property.Name">Property: @property.Name, value: @property.Value</div></p>
+            
         }
 
     </div>
 
     <div id="regionStatistics">
 
-        Statistics:
+        <h5>Statistics:</h5>
 
-        @foreach (var property in Model.Statistics)
+        @foreach (var property in Model.DataItem.Statistics)
         {
-            <p>Property: @property.Name, value: @property.Value</p>
+            <p><div type="statistic" class="alert alert-light statistic" onclick="dataPropertyClick($(this), true)" name="@property.Name">Statistic: @property.Name, value: @property.Value</div></p>
+            
         }
 
     </div>
@@ -32,15 +38,59 @@
 
         Files:
 
-        @foreach (var property in Model.Statistics)
+        @foreach (var property in Model.DataItem.Attachments)
         {
-            <p>Property: @property.Name, value: @property.Value</p>
+            <p>Attachment: @property.Name, value: @property.Value</p>
         }
 
     </div>
+
+
+    <form id="deleteDataPropertyForm" asp-controller="Map" asp-action="DeleteDataProperty" data-ajax="true" data-ajax-mode="replace" data-ajax-update="#regionProperties">
+
+
+        <div class="form-group">
+            <input class="form-control" id="dataPropertyNameInput" type="text" name="dataPropertyName" hidden />
+            <input class="form-control" id="dataPropertyType" type="checkbox" name="dataPropertyName" hidden />
+            <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetId" hidden />
+            <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+            <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
+        </div>
+
+        <button class="btn btn-primary" id="expanadPropertiesFormSubmit" type="submit">Expand</button>
+
+    </form>
+
+    <form id="expanadPropertiesForm" asp-controller="Map" asp-action="ExpanadProperties" data-ajax="true" data-ajax-method="post" method="post">
+
+        <h5>EXPAND current properties to all regions</h5>
+
+        <div class="form-group">
+            <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetId" hidden />
+            <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+            <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
+        </div>
+
+        <button class="btn btn-primary" id="expanadPropertiesFormSubmit" type="submit">Expand</button>
+
+    </form>
 }
 else
 {
     <p>No data items associated with the region</p>
 }
+
+<script>
+
+    //$(function () {
+    //    $('#expanadPropertiesFormSubmit').on('click', function (evt) {
+    //        evt.preventDefault();
+    //        $.post('', $('#expanadPropertiesForm').serialize(), function () {
+    //            alert('Posted using jQuery');
+    //        });
+    //    });
+    //});
+
+</script>
+
 

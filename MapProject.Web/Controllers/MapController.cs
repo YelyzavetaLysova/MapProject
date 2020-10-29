@@ -29,7 +29,7 @@ namespace MapProject.Web.Controllers
             IMapProvider saveProvider = new JsonFileSystemMapProvider();
             IMapParser mapParser = new MapParser();
             IStatisticProvider statisticProvider = new JsonFyleSystemStatisticProvider();
-            
+
             this._manager = new Manager(mapParser, saveProvider, statisticProvider);
         }
         public IActionResult Index()
@@ -52,7 +52,7 @@ namespace MapProject.Web.Controllers
 
             List<string> dataSetNames = this._manager.GetDataSets(map);
 
-            
+
 
             DataSet dataSet = null;
 
@@ -141,9 +141,9 @@ namespace MapProject.Web.Controllers
 
         public IActionResult SaveProperty(string propertyName, string propertyValue, string dataSetKey, string mapName, string regionId)
         {
-           
+
             var map = this._manager.GetMap(mapName);
-           
+
             var dataSet = this._manager.GetDataSet(dataSetKey, map);
 
             if (!String.IsNullOrWhiteSpace(regionId))
@@ -174,7 +174,45 @@ namespace MapProject.Web.Controllers
                 this._manager.SaveDataSet(dataSet, map);
             }
 
-            return this.RenderMap(mapName, dataSetKey);
+            return this.GetAllProperties(regionId, dataSetKey, mapName);
+        }
+
+        public IActionResult SaveStatistic(string statisticName, double statisticValue, string dataSetKey, string mapName, string regionId)
+        {
+
+            var map = this._manager.GetMap(mapName);
+
+            var dataSet = this._manager.GetDataSet(dataSetKey, map);
+
+            if (!String.IsNullOrWhiteSpace(regionId))
+            {
+                var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+
+                if (dataItem == null)
+                {
+                    dataItem = new DataItem(regionId);
+                }
+
+                var statistic = dataItem.Statistics.FirstOrDefault(x => x.Name == statisticName);
+
+                if (statistic == null)
+                {
+                    statistic = new DataProperty<double>(statisticName, statisticValue);
+                    dataItem.Statistics.Add(statistic);
+                }
+                else
+                {
+                    statistic.Value = statisticValue;
+                }
+
+
+
+                dataSet.DataItems.Add(dataItem);
+
+                this._manager.SaveDataSet(dataSet, map);
+            }
+
+            return this.GetAllProperties(regionId, dataSetKey, mapName);
         }
 
         public IActionResult GetAllProperties(string regionId, string dataSetName, string mapName)
@@ -183,8 +221,72 @@ namespace MapProject.Web.Controllers
 
             var dataSet = this._manager.GetDataSet(dataSetName, map);
 
-            return PartialView(dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId));
+            var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
 
+            return PartialView("GetAllProperties", new GetAllPropertiesModel(mapName, dataSetName, regionId, dataItem));
+
+        }
+
+
+        public IActionResult ExpanadProperties(string regionId, string dataSetName, string mapName)
+        {
+            var map = this._manager.GetMap(mapName);
+            var dataSet = this._manager.GetDataSet(dataSetName, map);
+            var exampleDataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+
+            if (exampleDataItem != null)
+            {
+                foreach (var region in map.Regions)
+                {
+                    var currentDataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == region.Id);
+
+                    if (currentDataItem == null)
+                    {
+                        currentDataItem = new DataItem(region.Id);
+                        dataSet.DataItems.Add(currentDataItem);
+                    }
+                    if (regionId != region.Id)
+                    {
+                        foreach (var property in exampleDataItem.Properties)
+                        {
+                            if (!currentDataItem.Properties.Any(x => x.Name == property.Name))
+                            {
+                                var newPropety = new DataProperty<string>(property.Name, property.Value);
+
+                                currentDataItem.Properties.Add(newPropety);
+                            }
+
+                        }
+
+                        foreach (var statistic in exampleDataItem.Statistics)
+                        {
+                            if (!currentDataItem.Statistics.Any(x => x.Name == statistic.Name))
+                            {
+                                var newStatistic = new DataProperty<double>(statistic.Name, statistic.Value);
+
+                                currentDataItem.Statistics.Add(newStatistic);
+                            }
+
+                        }
+                    }
+
+                }
+
+                this._manager.SaveDataSet(dataSet, map);
+
+
+            }
+
+            return this.RenderMap(mapName, dataSetName);
+        }
+
+
+        public IActionResult DeleteDataProperty(string dataPropertyName, string dataSetName, string mapName, string regionId, bool ifStatistic, bool removeFromAll = false)
+        {
+
+
+
+            return this.GetAllProperties(regionId, dataSetName, mapName);
         }
 
     }
