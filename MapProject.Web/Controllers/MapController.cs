@@ -463,6 +463,10 @@ namespace MapProject.Web.Controllers
 
             DataItem dataItem = null;
 
+            string regionName = String.Empty;
+            string regionDescription = String.Empty;
+            string referencedMap = String.Empty;
+
             if (dataSet != null)
             {
                 dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
@@ -472,16 +476,71 @@ namespace MapProject.Web.Controllers
                     dataItem = new DataItem(regionId);
                     dataSet.DataItems.Add(dataItem);
 
+
                     this._manager.SaveDataSet(dataSet, map);
+                }
+
+                var nameProperty = dataItem.Properties.FirstOrDefault(x => x.Name == "Name");
+                var descriptionProperty = dataItem.Properties.FirstOrDefault(x => x.Name == "Description");
+                var referencedMapProperty = dataItem.Properties.FirstOrDefault(x => x.Name == "ReferencedMap");
+
+                if (nameProperty != null)
+                {
+                    regionName = nameProperty.Value;
+                }
+
+                if (descriptionProperty != null)
+                {
+                    regionDescription = descriptionProperty.Value;
+                }
+
+                if (referencedMapProperty != null)
+                {
+                    referencedMap = referencedMapProperty.Value;
                 }
 
             }
 
-            
+            var maps = this._manager.GetMaps();
 
-             
+            maps.RemoveAll(x => x == mapName);
 
-            return ViewComponent("ManageRegion", new ManageRegionModel() { RegionId = regionId, DataSetName = dataSetName, MapName = mapName, DataItem = dataItem });
+           
+
+            return ViewComponent("ManageRegion", new ManageRegionModel() { RegionId = regionId, DataSetName = dataSetName, MapName = mapName, DataItem = dataItem, RegionName = regionName, RegionDescription = regionDescription, Maps = maps, ReferencedMapName = referencedMap });
+        }
+
+        public IActionResult AssignMap(string mapToAssignName, string regionId, string dataSetName, string mapName)
+        {
+
+            Map map = this._manager.GetMap(mapName);
+            Map mapToAssign = this._manager.GetMap(mapToAssignName);
+
+            if (mapToAssign != null)
+            {
+                var dataSet = this._manager.GetDataSet(dataSetName, map);
+
+                var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+
+                if (dataItem == null)
+                {
+                    dataItem = new DataItem(regionId);
+                }
+
+                var property = dataItem.Properties.FirstOrDefault(x => x.Name == "ReferencedMap");
+
+                if (property == null)
+                {
+                    property = new DataProperty<string>("ReferencedMap", mapToAssignName);
+
+                    dataItem.Properties.Add(property);
+                }
+
+                this._manager.SaveDataSet(dataSet, map);
+
+            }
+
+            return this.ManageRegion(regionId, dataSetName, mapName);
         }
 
         #endregion

@@ -14,7 +14,25 @@ namespace MapProject.Web.Models
             set;
         }
 
+        public string RegionName
+        {
+            get;
+            set;
+        }
+
+        public string RegionDescription
+        {
+            get;
+            set;
+        }
+
         public string MapName
+        {
+            get;
+            set;
+        }
+
+        public string ReferencedMapName
         {
             get;
             set;
@@ -27,6 +45,12 @@ namespace MapProject.Web.Models
         }
 
         public DataItem DataItem
+        {
+            get;
+            set;
+        }
+
+        public List<string> Maps
         {
             get;
             set;

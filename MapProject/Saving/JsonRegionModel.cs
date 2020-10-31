@@ -23,25 +23,6 @@ namespace MapProject.Saving
             set;
         }
 
-        [JsonProperty(PropertyName = "m")]
-        public JsonMapModel ReferencedMap
-        {
-            get;
-            set;
-        }
-
-        public bool ShouldSerializeReferencedMap()
-        {
-            if (this.ReferencedMap != null)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
         public JsonRegionModel()
         {
 
@@ -51,19 +32,11 @@ namespace MapProject.Saving
         {
             this.Id = region.Id;
             this.Points = region.Points.Select(x => new JsonPointModel(x)).ToList();
-
-            if (region.ReferencedMap != null)
-            {
-                this.ReferencedMap = new JsonMapModel(region.ReferencedMap);
-            }
         }
 
         public Region ToRegion()
         {
-
-            Map map = this.ReferencedMap == null ? null : this.ReferencedMap.ToMap();
-
-            return new Region(this.Id, this.Points.Select(x => x.ToPoint(this.Id)), map);
+            return new Region(this.Id, this.Points.Select(x => x.ToPoint(this.Id)));
         }
     }
 }

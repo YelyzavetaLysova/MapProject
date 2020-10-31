@@ -18,13 +18,7 @@ namespace MapProject.Model
             get;
             private set;
         } 
-
-        public Map ReferencedMap
-        {
-            get;
-            private set;
-        }
-
+       
         public Region()
         {
             
@@ -38,10 +32,11 @@ namespace MapProject.Model
             this.Points.AddRange(points);
         }
 
-        public Region(string id, IEnumerable<Point> points, Map referencedMap) : this(points)
+        
+
+        public Region(string id, IEnumerable<Point> points) : this(points)
         {
             this.Id = id;
-            this.ReferencedMap = referencedMap;
         }
     }
 }

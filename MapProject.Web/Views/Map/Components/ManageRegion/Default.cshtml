@@ -1,222 +1,262 @@
 ﻿@model MapProject.Web.Models.ManageRegionModel
 
-<div id="regionManagement">
+    <div id="regionManagement">
 
-    <div class="alert alert-primary">Current region - <b>@Model.RegionId</b></div>
-
-    @{
-
-        if (String.IsNullOrWhiteSpace(Model.DataSetName))
-        {
-
-            <div class="alert alert-danger">Dataset is not loaded. Please load dataset to see the data associated with the region</div>
+        @{
+            string regionName = String.IsNullOrWhiteSpace(Model.RegionName) ? "[" + Model.RegionId + "]" : Model.RegionName + " [" + Model.RegionId + "]";
         }
-        else
-        {
 
-            <p>
-                <a class="btn btn-primary btn-sm" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                    Manage Properties
-                </a>
-            </p>
-            <div class="collapse" id="collapseExample">
+        <div class="alert alert-primary">Current region - <b>@regionName</b></div>
 
-                <hr />
 
-                <div class="row">
-                    <div class="col-6">
-                        <form id="createNewPropertyForm" asp-controller="Map" asp-action="SaveProperty" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
+        @{
 
-                            <h5>UPSERT property</h5>
+            if (String.IsNullOrWhiteSpace(Model.DataSetName))
+            {
 
-                            <div class="form-group">
+                <div class="alert alert-danger">Dataset is not loaded. Please load dataset to see the data associated with the region</div>
+            }
+            else
+            {
 
-                                <input class="form-control" type="text" name="propertyName" placeholder="Enter property name" />
-                                <input class="form-control" type="text" name="propertyValue" placeholder="Enter property value" />
-                                <input class="form-control" type="text" name="dataSetKey" value="@Model.DataSetName" hidden />
-                                <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
-                                <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
-                            </div>
+                if (!String.IsNullOrWhiteSpace(Model.ReferencedMapName))
+                {
+                    <div class="alert alert-primary">Current region has referenced map assigned - <a href="/Map/RenderMap?mapName=@Model.ReferencedMapName" target="_blank">@Model.ReferencedMapName</a></div>
+                }
 
-                            <button class="btn btn-sm btn-primary" type="submit">Save</button>
+                <p>
+                    <a class="btn btn-primary btn-sm" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                        Manage Properties
+                    </a>
+                </p>
+                <div class="collapse" id="collapseExample">
 
-                        </form>
+                    <hr />
+
+                    <div class="row">
+                        <div class="col-6">
+                            <form id="createNewPropertyForm" asp-controller="Map" asp-action="SaveProperty" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
+
+                                <h5>UPSERT property</h5>
+
+                                <div class="form-group">
+
+                                    <input class="form-control" type="text" name="propertyName" placeholder="Enter property name" />
+                                    <input class="form-control" type="text" name="propertyValue" placeholder="Enter property value" />
+                                    <input class="form-control" type="text" name="dataSetKey" value="@Model.DataSetName" hidden />
+                                    <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                                    <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
+                                </div>
+
+                                <button class="btn btn-sm btn-primary" type="submit">Save</button>
+
+                            </form>
+                        </div>
+                        <div class="col-6">
+                            <form id="createNewStatisticForm" asp-controller="Map" asp-action="SaveStatistic" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
+
+                                <h5>UPSERT statistic</h5>
+
+                                <div class="form-group">
+
+                                    <input class="form-control" type="text" name="statisticName" />
+                                    <input class="form-control" type="number" value="0" step="0.1" name="statisticValue" />
+                                    <input class="form-control" type="text" name="dataSetKey" value="@Model.DataSetName" hidden />
+                                    <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                                    <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
+                                </div>
+                                <button class="btn btn-sm btn-primary" type="submit">Save</button>
+
+                            </form>
+                        </div>
                     </div>
-                    <div class="col-6">
-                        <form id="createNewStatisticForm" asp-controller="Map" asp-action="SaveStatistic" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
 
-                            <h5>UPSERT statistic</h5>
+                    <p></p>
 
-                            <div class="form-group">
+                    <div class="row">
 
-                                <input class="form-control" type="text" name="statisticName" />
-                                <input class="form-control" type="number" value="0" step="0.1" name="statisticValue" />
-                                <input class="form-control" type="text" name="dataSetKey" value="@Model.DataSetName" hidden />
-                                <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
-                                <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
-                            </div>
-                            <button class="btn btn-sm btn-primary" type="submit">Save</button>
+                        <div class="col-6">
 
-                        </form>
+                            <form id="deletePropertyForm" asp-controller="Map" asp-action="ManageDataProperty" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
+
+                                <h5>MANAGE property</h5>
+
+                                <div class="form-group">
+
+                                    <select class="form-control" name="dataPropertyName">
+                                        @{
+                                            foreach (var property in Model.DataItem.Properties)
+                                            {
+
+                                                <option>@property.Name</option>
+                                            }
+                                        }
+                                    </select>
+
+                                    <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
+                                    <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                                    <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
+                                    <input class="form-control" name="ifStatistic" value="false" hidden />
+
+                                </div>
+
+                                <input style="margin-bottom:4px;" class="btn btn-sm btn-danger" type="submit" name="toDo" value="Delete" />
+                                <input style="margin-bottom:4px;" class="btn btn-sm btn-danger" type="submit" name="toDo" value="Delete All" />
+                                <input style="margin-bottom:4px;" class="btn btn-sm btn-primary" type="submit" name="toDo" value="Expand" />
+
+                            </form>
+
+                        </div>
+
+                        <div class="col-6">
+                            <form id="deletePropertyForm" asp-controller="Map" asp-action="ManageDataProperty" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
+
+                                <h5>MANAGE statistic</h5>
+
+                                <div class="form-group">
+
+                                    <select class="form-control" name="dataPropertyName">
+                                        @{
+                                            foreach (var statistic in Model.DataItem.Statistics)
+                                            {
+
+                                                <option>@statistic.Name</option>
+                                            }
+                                        }
+                                    </select>
+
+                                    <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
+                                    <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                                    <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
+                                    <input class="form-control" name="ifStatistic" value="true" hidden />
+
+                                </div>
+
+                                <input style="margin-bottom:4px;" class="btn btn-sm btn-danger" type="submit" name="toDo" value="Delete" />
+                                <input style="margin-bottom:4px;" class="btn btn-sm btn-danger" type="submit" name="toDo" value="Delete All" />
+                                <input style="margin-bottom:4px;" class="btn btn-sm btn-primary" type="submit" name="toDo" value="Expand" />
+
+                            </form>
+                        </div>
+
                     </div>
+
+                    <p />
+
+                    <form id="expanadPropertiesForm" asp-controller="Map" asp-action="ExpanadProperties" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
+
+                        <h5>EXPAND properties to all other regions</h5>
+
+                        <div class="form-group">
+                            <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
+                            <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                            <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
+                        </div>
+
+                        <button class="btn btn-primary btn-sm" id="expanadPropertiesFormSubmit" type="submit">Expand</button>
+
+                    </form>
+
+                    <p></p>
+                    <hr />
+
+                    <div class="row">
+
+                        <div class="col-12">
+                            <form asp-controller="Map" asp-action="AddAttachment" method="post" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" enctype="multipart/form-data">
+
+                                <h5>ATTACH file</h5>
+
+                                <div class="form-group">
+
+                                    <input class="form-control-file" type="file" name="attachmentFile" />
+                                    <p></p>
+
+                                    <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
+                                    <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                                    <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
+
+                                    <button class="btn btn-sm btn-primary" type="submit">Upload</button>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-12">
+                            <form asp-controller="Map" asp-action="DeleteAttachment" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
+
+                                <h5>DELETE file</h5>
+
+                                <div class="form-group">
+
+                                    <select class="form-control" name="attachmentName">
+                                        @{
+                                            foreach (var statistic in Model.DataItem.Attachments)
+                                            {
+
+                                                <option>@statistic.Name</option>
+                                            }
+                                        }
+                                    </select>
+
+                                    <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
+                                    <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                                    <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
+
+                                </div>
+
+                                <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+
+                            </form>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="row">
+                        <div class="col-12">
+                            <form asp-controller="Map" asp-action="AssignMap" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
+
+                                <h5>ASSIGN map to region</h5>
+
+                                <div class="form-group">
+
+                                    <select class="form-control" name="mapToAssignName">
+                                        @{
+                                            foreach (var map in Model.Maps)
+                                            {
+
+                                                <option>@map</option>
+                                            }
+                                        }
+                                    </select>
+
+                                    <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
+                                    <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                                    <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
+
+                                </div>
+
+                                <button class="btn btn-sm btn-primary" type="submit">Assign</button>
+
+                            </form>
+                        </div>
+                    </div>
+
+                    <hr />
+
                 </div>
 
                 <p></p>
 
-                <div class="row">
 
-                    <div class="col-6">
-
-                        <form id="deletePropertyForm" asp-controller="Map" asp-action="ManageDataProperty" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
-
-                            <h5>MANAGE property</h5>
-
-                            <div class="form-group">
-
-                                <select class="form-control" name="dataPropertyName">
-                                    @{
-                                        foreach (var property in Model.DataItem.Properties)
-                                        {
-
-                                            <option>@property.Name</option>
-                                        }
-                                    }
-                                </select>
-
-                                <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
-                                <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
-                                <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
-                                <input class="form-control" name="ifStatistic" value="false" hidden />
-
-                            </div>
-
-                            <input style="margin-bottom:4px;" class="btn btn-sm btn-danger" type="submit" name="toDo" value="Delete" />
-                            <input style="margin-bottom:4px;" class="btn btn-sm btn-danger" type="submit" name="toDo" value="Delete All" />
-                            <input style="margin-bottom:4px;" class="btn btn-sm btn-primary" type="submit" name="toDo" value="Expand" />
-
-                        </form>
-
-                    </div>
-
-                    <div class="col-6">
-                        <form id="deletePropertyForm" asp-controller="Map" asp-action="ManageDataProperty" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
-
-                            <h5>MANAGE statistic</h5>
-
-                            <div class="form-group">
-
-                                <select class="form-control" name="dataPropertyName">
-                                    @{
-                                        foreach (var statistic in Model.DataItem.Statistics)
-                                        {
-
-                                            <option>@statistic.Name</option>
-                                        }
-                                    }
-                                </select>
-
-                                <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
-                                <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
-                                <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
-                                <input class="form-control" name="ifStatistic" value="true" hidden />
-
-                            </div>
-
-                            <input style="margin-bottom:4px;" class="btn btn-sm btn-danger" type="submit" name="toDo" value="Delete" />
-                            <input style="margin-bottom:4px;" class="btn btn-sm btn-danger" type="submit" name="toDo" value="Delete All" />
-                            <input style="margin-bottom:4px;" class="btn btn-sm btn-primary" type="submit" name="toDo" value="Expand" />
-
-                        </form>
-                    </div>
-
-                </div>
-
-                <p />
-
-                <form id="expanadPropertiesForm" asp-controller="Map" asp-action="ExpanadProperties" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
-
-                    <h5>EXPAND current region properties to other regions</h5>
-
-                    <div class="form-group">
-                        <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
-                        <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
-                        <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
-                    </div>
-
-                    <button class="btn btn-primary btn-sm" id="expanadPropertiesFormSubmit" type="submit">Expand</button>
-
-                </form>
-
-                <p></p>
-                <hr />
-
-                <div class="row">
-
-                    <div class="col-6">
-                        <form asp-controller="Map" asp-action="AddAttachment" method="post" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" enctype="multipart/form-data">
-
-                            <h5>ATTACH file</h5>
-
-                            <div class="form-group">
-
-                                <input class="form-control-file" type="file" name="attachmentFile" />
-                                <p></p>
-
-                                <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
-                                <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
-                                <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
-
-                                <button class="btn btn-sm btn-primary" type="submit">Upload</button>
-                            </div>
-
-                        </form>
-                    </div>
-                </div>
+                @await Component.InvokeAsync("ManageRegionProperties", Model);
 
 
-
-                <div class="row">
-
-                    <div class="col-6">
-                        <form asp-controller="Map" asp-action="DeleteAttachment" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
-
-                            <h5>DELETE file</h5>
-
-                            <div class="form-group">
-
-                                <select class="form-control" name="attachmentName">
-                                    @{
-                                        foreach (var statistic in Model.DataItem.Attachments)
-                                        {
-
-                                            <option>@statistic.Name</option>
-                                        }
-                                    }
-                                </select>
-
-                                <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
-                                <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
-                                <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
-
-                            </div>
-
-                            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
-
-                        </form>
-                    </div>
-                </div>
-
-                <hr />
-
-            </div>
-
-            <p></p>
-
-
-            @await Component.InvokeAsync("ManageRegionProperties", Model);
-
-
+            }
         }
-    }
 
-</div>
+    </div>
