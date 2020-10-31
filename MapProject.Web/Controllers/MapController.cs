@@ -63,7 +63,7 @@ namespace MapProject.Web.Controllers
                 dataSet = this._manager.GetDataSet(dataSetName, map);
             }
 
-            RenderMapModel renderMapModel = new RenderMapModel(map, dataSetNames, dataSet, JsonConvert.SerializeObject(dataSet));
+            RenderMapModel renderMapModel = new RenderMapModel(map, dataSetNames, dataSet);
 
             return View("RenderMap", renderMapModel);
         }
@@ -554,12 +554,16 @@ namespace MapProject.Web.Controllers
             this._manager.SaveDataSet(dataSet, this._manager.GetMap(mapName));
 
 
-            return this.RenderMap(mapName, dataSetName);
+            return RedirectToAction("RenderMap", new { dataSetName = dataSetName, mapName = mapName });
         }
 
         public IActionResult LoadDataSet(string dataSetName, string mapName)
         {
-            return this.RenderMap(mapName, dataSetName);
+            //DataSet dataset = 
+
+            return RedirectToAction("RenderMap", new { dataSetName = dataSetName, mapName = mapName });
+
+            //return this.RenderMap(mapName, dataSetName);
         }
 
         public IActionResult DeleteDataSet(string dataSetName, string mapName)
@@ -569,12 +573,12 @@ namespace MapProject.Web.Controllers
 
             this._manager.RemoveDataSet(dataSetName, map);
 
-            return this.RenderMap(mapName, null);
+            return RedirectToAction("RenderMap", new { dataSetName = String.Empty, mapName = mapName });
         }
 
         public IActionResult CloseDataSet(string mapName)
         {
-            return this.RenderMap(mapName, null);
+            return RedirectToAction("RenderMap", new { dataSetName = String.Empty, mapName = mapName });
         }
 
 

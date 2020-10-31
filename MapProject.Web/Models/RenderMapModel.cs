@@ -21,24 +21,18 @@ namespace MapProject.Web.Models
             set;
         }
 
-        public string JsonDataSet
-        {
-            get;
-            set;
-        }
-
+       
         public List<string> DataSetNames
         {
             get;
             set;
         }
 
-        public RenderMapModel(Map map, List<string> dataSetNames, DataSet dataSet, string jsonDataSet)
+        public RenderMapModel(Map map, List<string> dataSetNames, DataSet dataSet)
         {
             this.DataSet = dataSet;
             this.Map = map;
             this.DataSetNames = dataSetNames;
-            this.JsonDataSet = jsonDataSet;
         }
 
         public RenderMapModel()
