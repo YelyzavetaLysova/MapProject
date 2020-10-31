@@ -1,26 +1,4 @@
-﻿function loadRegionProperties(regionId, dataSetName, mapName) {
-
-
-
-    if (dataSetName !== "") {
-
-        $.ajax(
-
-            {
-                url: "/Map/ManageProperties",
-                data: "regionId=" + regionId + "&dataSetName=" + dataSetName + "&mapName=" + mapName,
-                success: function (htmlToInsert) {
-
-                    $("#propertiesManagement").html(htmlToInsert);
-
-                }
-            }
-
-        );
-    }
-}
-
-
+﻿
 function renderRegionManagement(regionId, dataSetName, mapName) {
 
     $.ajax(

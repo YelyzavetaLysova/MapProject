@@ -14,5 +14,9 @@ namespace MapProject.Statistic
         void RemoveDataSet(string dataSetKey, Map map);
 
         List<string> GetDataSets(Map map);
+
+        void AddAttachment(string dataSetKey, string regionId, Map map, string pathToFile);
+
+        //void GetAttachmentPath(string dataSetKey, string regionId, Map map, string pathToFile);
     }
 }

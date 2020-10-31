@@ -13,6 +13,7 @@ namespace MapProject.Statistic.FileSystem
 
         private string _path = Environment.CurrentDirectory + "/Maps";
         private string _dataSetExtention = ".dataset";
+        private string _attachmentsFolderPath = "/attachments";
 
         public JsonFyleSystemStatisticProvider()
         {
@@ -81,6 +82,40 @@ namespace MapProject.Statistic.FileSystem
             }
 
             return Directory.GetFiles(mapFolderPath, "*" + this._dataSetExtention).Select(x => Path.GetFileNameWithoutExtension(x)).ToList();
+        }
+
+        public void AddAttachment(string dataSetKey, string regionId, Map map, string pathToFile)
+        {
+            DataSet dataSet = this.GetDataSet(dataSetKey, map);
+
+            DataItem dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+
+            if (dataItem == null)
+            {
+                dataItem = new DataItem(regionId);
+            }
+
+            string folder = this.GenerateMapFolderPath(map.Name) + this._attachmentsFolderPath;
+
+            if (!Directory.Exists(folder))
+            {
+                Directory.CreateDirectory(folder);
+            }
+
+            string attachmentName = Guid.NewGuid() + "_" + Path.GetFileName(pathToFile);
+
+            string attachmentPath = folder + "/" + attachmentName;
+
+            if (File.Exists(attachmentPath))
+            {
+                File.Delete(attachmentPath);
+            }
+
+            File.Copy(pathToFile, attachmentPath);
+
+            dataItem.Attachments.Add(new DataProperty<string>(Path.GetFileName(pathToFile), attachmentPath));
+
+            this.SaveDataSet(dataSet, map);
         }
     }
 }

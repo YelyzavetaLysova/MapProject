@@ -12,6 +12,8 @@ using MapProject.Web.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
 
 namespace MapProject.Web.Controllers
@@ -161,7 +163,7 @@ namespace MapProject.Web.Controllers
                 this._manager.SaveDataSet(dataSet, map);
             }
 
-            return this.ManageProperties(regionId, dataSetKey, mapName);
+            return this.ManageRegion(regionId, dataSetKey, mapName);
         }
 
         public IActionResult SaveStatistic(string statisticName, double statisticValue, string dataSetKey, string mapName, string regionId)
@@ -199,19 +201,19 @@ namespace MapProject.Web.Controllers
                 this._manager.SaveDataSet(dataSet, map);
             }
 
-            return this.ManageProperties(regionId, dataSetKey, mapName);
+            return this.ManageRegion(regionId, dataSetKey, mapName);
         }
 
-        public IActionResult ManageProperties(string regionId, string dataSetName, string mapName)
-        {
-            var map = this._manager.GetMap(mapName);
+        //public IActionResult ManageRegion(string regionId, string dataSetName, string mapName)
+        //{
+        //    var map = this._manager.GetMap(mapName);
 
-            var dataSet = this._manager.GetDataSet(dataSetName, map);
+        //    var dataSet = this._manager.GetDataSet(dataSetName, map);
 
-            var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+        //    var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
 
-            return ViewComponent("ManageRegion", new ManageRegionModel() { MapName = mapName, DataSetName = dataSetName, RegionId = regionId, DataItem = dataItem });
-        }
+        //    return ViewComponent("ManageRegion", new ManageRegionModel() { MapName = mapName, DataSetName = dataSetName, RegionId = regionId, DataItem = dataItem });
+        //}
 
 
         public IActionResult ExpanadProperties(string regionId, string dataSetName, string mapName)
@@ -237,7 +239,7 @@ namespace MapProject.Web.Controllers
                         {
                             if (!currentDataItem.Properties.Any(x => x.Name == property.Name))
                             {
-                                var newPropety = new DataProperty<string>(property.Name, property.Value);
+                                var newPropety = new DataProperty<string>(property.Name, String.Empty);
 
                                 currentDataItem.Properties.Add(newPropety);
                             }
@@ -248,7 +250,7 @@ namespace MapProject.Web.Controllers
                         {
                             if (!currentDataItem.Statistics.Any(x => x.Name == statistic.Name))
                             {
-                                var newStatistic = new DataProperty<double>(statistic.Name, statistic.Value);
+                                var newStatistic = new DataProperty<double>(statistic.Name, 0);
 
                                 currentDataItem.Statistics.Add(newStatistic);
                             }
@@ -263,20 +265,190 @@ namespace MapProject.Web.Controllers
 
             }
 
-            return this.RenderMap(mapName, dataSetName);
+            return this.ManageRegion(regionId, dataSetName, mapName);
         }
 
 
-        public IActionResult DeleteDataProperty(string dataPropertyName, string dataSetName, string mapName, string regionId, bool ifStatistic, bool removeFromAll = false)
+        public IActionResult ManageDataProperty(string dataPropertyName, string dataSetName, string mapName, string regionId, bool ifStatistic, string toDo)
         {
 
+            var regionsToProcess = new List<string>();
+
+            var map = this._manager.GetMap(mapName);
+
+            var dataSet = this._manager.GetDataSet(dataSetName, map);
 
 
-            return this.ManageProperties(regionId, dataSetName, mapName);
+            if (toDo == "Delete All" || toDo == "Delete")
+            {
+                if (toDo == "Delete All")
+                {
+                    regionsToProcess = map.Regions.Select(x => x.Id).ToList();
+                }
+                if (toDo == "Delete")
+                {
+                    regionsToProcess.Add(regionId);
+
+
+                }
+
+                foreach (var region in regionsToProcess)
+                {
+                    var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == region);
+
+                    if (ifStatistic)
+                    {
+                        dataItem.Statistics.RemoveAll(x => x.Name == dataPropertyName);
+                    }
+                    else
+                    {
+                        dataItem.Properties.RemoveAll(x => x.Name == dataPropertyName);
+                    }
+                }
+
+            }
+
+            if (toDo == "Expand")
+            {
+                var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+
+                if (ifStatistic)
+                {
+                    //var statistic = dataItem.Statistics.FirstOrDefault(x => x.Name == dataPropertyName);
+
+                    foreach(var region in map.Regions)
+                    {
+                        var regionDataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == region.Id);
+
+                        if (regionDataItem.Statistics.FirstOrDefault(x => x.Name == dataPropertyName) == null)
+                        {
+                            regionDataItem.Statistics.Add(new DataProperty<double>(dataPropertyName, 0));
+                        }
+                    }
+
+                }
+                else
+                {
+                    //var property = dataItem.Properties.FirstOrDefault(x => x.Name == dataPropertyName);
+
+                    foreach (var region in map.Regions)
+                    {
+                        var regionDataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == region.Id);
+
+                        if (regionDataItem == null)
+                        {
+                            regionDataItem = new DataItem(region.Id);
+                            dataSet.DataItems.Add(regionDataItem);
+                        }
+
+                        if (regionDataItem.Properties.FirstOrDefault(x => x.Name == dataPropertyName) == null)
+                        {
+                            regionDataItem.Properties.Add(new DataProperty<string>(dataPropertyName, String.Empty));
+                        }
+                    }
+                }
+
+            }
+
+
+                this._manager.SaveDataSet(dataSet, map);
+
+
+            return this.ManageRegion(regionId, dataSetName, mapName);
         }
 
 
+                    //        <input type = "file" name="attachmentFile" />
+
+                    //<input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
+                    //<input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                    //<input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
+
+        public IActionResult AddAttachment(string dataSetName, string mapName, string regionId, IFormFile attachmentFile)
+        {
+
+            var map = this._manager.GetMap(mapName);
+           //CreateMapModel model = null;
+
+            if (attachmentFile != null)
+            {
+                var folder = Path.Combine(this._hostingEnvironment.ContentRootPath, "tmp");
+
+                if (!Directory.Exists(folder))
+                {
+                    Directory.CreateDirectory(folder);
+                }
+
+                var filePath = Path.Combine(folder, attachmentFile.FileName);
+
+                if (attachmentFile.Length > 0)
+                {
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        attachmentFile.CopyTo(fileStream);
+                    }
+
+
+                }
+
+                this._manager.AddAttachment(dataSetName, regionId, map, filePath);
+            }
+
+            return this.ManageRegion(regionId, dataSetName, mapName);
+        }
+
+        public IActionResult DeleteAttachment(string dataSetName, string mapName, string regionId, string attachmentName)
+        {
+            var map = this._manager.GetMap(mapName);
+
+            var dataSet = this._manager.GetDataSet(dataSetName, map);
+
+            var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+
+            var attachment = dataItem.Attachments.FirstOrDefault(x => x.Name == attachmentName);
+
+            if (System.IO.File.Exists(attachment.Value))
+            {
+                System.IO.File.Delete(attachment.Value);
+            }
+
+            dataItem.Attachments.Remove(attachment);
+
+            this._manager.SaveDataSet(dataSet, map);
+
+            return this.ManageRegion(regionId, dataSetName, mapName);
+        }
+
         #region Region Management
+
+        public IActionResult DownloadAttachment(string regionId, string dataSetName, string mapName, string attachmentName)
+        {
+
+            var map = this._manager.GetMap(mapName);
+            var dataSet = this._manager.GetDataSet(dataSetName, map);
+            var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+
+            var attachment = dataItem.Attachments.FirstOrDefault(x => x.Name == attachmentName);
+
+            string mimeType = String.Empty;
+
+            FileStream stream = new FileStream(attachment.Value, FileMode.Open);
+
+
+            //var content = new System.IO.MemoryStream(attachment.Value);
+
+            var mimeProvider = new FileExtensionContentTypeProvider();
+
+            if (!mimeProvider.TryGetContentType(attachment.Value, out mimeType))
+            {
+                mimeType = "application/octet-stream";
+            }
+
+            //var readStream = fileInfo.CreateReadStream();
+
+            return File(stream, mimeType, attachment.Name);
+        }
 
         public IActionResult ManageRegion(string regionId, string dataSetName, string mapName)
         {
@@ -294,7 +466,18 @@ namespace MapProject.Web.Controllers
             if (dataSet != null)
             {
                 dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+
+                if (dataItem == null)
+                {
+                    dataItem = new DataItem(regionId);
+                    dataSet.DataItems.Add(dataItem);
+
+                    this._manager.SaveDataSet(dataSet, map);
+                }
+
             }
+
+            
 
              
 

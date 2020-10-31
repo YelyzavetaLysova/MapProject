@@ -37,14 +37,14 @@
 
                 <div class="alert alert-primary">Current map - <b>@Model.Map.Name</b></div>
 
-                <hr />
+                
 
                 @{
 
                     await Html.RenderPartialAsync("ManageDataSet", new ManageDataSetModel() { MapName = Model.Map.Name, DataSetName = dataSetId, DataSets = Model.DataSetNames });
                 }
 
-                <hr />
+                <p></p>
 
                 <div id="regionManagement">
 

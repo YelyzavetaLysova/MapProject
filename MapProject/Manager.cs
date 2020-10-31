@@ -70,6 +70,11 @@ namespace MapProject
             this._statisticProvider.SaveDataSet(dataSet, map);
         }
 
+        public void AddAttachment(string dataSetKey, string regionId, Map map, string pathToFile)
+        {
+            this._statisticProvider.AddAttachment(dataSetKey, regionId, map, pathToFile);
+        }
+
         public void RemoveDataSet(string dataSetKey, Map map)
         {
             this._statisticProvider.RemoveDataSet(dataSetKey, map);
