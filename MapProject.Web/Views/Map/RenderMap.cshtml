@@ -1,4 +1,5 @@
-﻿@model MapProject.Web.Models.RenderMapModel
+﻿@using MapProject.Web.Models;
+@model RenderMapModel
 
 
 @{
@@ -23,129 +24,32 @@
 
 <div class="container-fluid">
 
-
+    <div id="currentMapName" hidden>@Model.Map.Name</div>
+    <div id="currentDataSet" hidden>@dataSetId</div>
+    <div id="currentRegionId" hidden></div>
+    <div id="jsonDataSet" hidden>@Model.JsonDataSet</div>
 
     <div class="row">
 
-        <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+        <nav id="sidebarMenu" class="col-md-3 col-lg-3 d-md-block bg-light sidebar collapse">
             <div class="sidebar-sticky pt-3">
 
 
-                <div>
+                <div class="alert alert-primary">Current map - <b>@Model.Map.Name</b></div>
 
-                    <h5>Current map - @Model.Map.Name</h5>
-                    <h5>Current dataset - @currentDataSet</h5>
+                <hr />
 
-                    <p></p>
-                    <hr />
+                @{
 
+                    await Html.RenderPartialAsync("ManageDataSet", new ManageDataSetModel() { MapName = Model.Map.Name, DataSetName = dataSetId, DataSets = Model.DataSetNames });
+                }
 
-                    <h5>To continue, SELECT and LOAD existing dataset for map @Model.Map.Name</h5>
+                <hr />
 
+                <div id="regionManagement">
 
-                    <form id="createNewDataSetForm" asp-controller="Map" asp-action="LoadDataSet" method="post">
+                    @*@Component.InvokeAsync("ManageRegion", new )*@
 
-                        <div class="form-group">
-
-                            <select class="form-control" name="dataSetName">
-                                @{
-                                    foreach (var dataSet in Model.DataSetNames)
-                                    {
-
-                                        <option>@dataSet</option>
-                                    }
-                                }
-                            </select>
-
-                            <input class="form-control" type="text" name="mapName" value="@Model.Map.Name" hidden />
-
-                        </div>
-
-                        <button class="btn btn-primary" type="submit">Load Data Set</button>
-
-                    </form>
-
-                    <p></p>
-
-                    <h5>or CREATE new dataset for map "@Model.Map.Name"</h5>
-
-                    <form id="createNewDataSetForm" asp-controller="Map" asp-action="CreateDataSet" method="post">
-
-                        <div class="form-group">
-
-                            <input class="form-control" type="text" name="dataSetName" placeholder="Enter new data set name here" />
-                            <input class="form-control" type="text" name="mapName" value="@Model.Map.Name" hidden />
-                        </div>
-
-                        <button class="btn btn-primary" type="submit">Create Data Set</button>
-
-                    </form>
-
-
-
-                    <div id="currentMapName" hidden>@Model.Map.Name</div>
-                    <div id="currentDataSet" hidden>@dataSetId</div>
-                    <div id="currentRegionId" hidden></div>
-                    <div id="jsonDataSet" hidden>@Model.JsonDataSet</div>
-
-
-                </div>
-
-                <div>
-
-                    <hr />
-
-                    <h5 id="regionIdLavel">No region selected</h5>
-
-                    <p></p>
-
-                </div>
-
-                <div>
-
-
-
-                    <form hidden id="createNewPropertyForm" asp-controller="Map" asp-action="SaveProperty" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionProperties" method="post">
-
-                        <h5>CREATE or UPDATE property</h5>
-
-                        <div class="form-group">
-
-                            <input class="form-control" type="text" name="propertyName" placeholder="Enter property name" />
-                            <input class="form-control" type="text" name="propertyValue" placeholder="Enter property value" />
-                            <input class="form-control" type="text" name="dataSetKey" value="@currentDataSet" hidden />
-                            <input class="form-control" type="text" name="mapName" value="@Model.Map.Name" hidden />
-                            <input class="form-control regionIdInput" type="text" name="regionId" hidden />
-                        </div>
-
-                        <button class="btn btn-primary" type="submit">Save Property</button>
-
-                    </form>
-
-                    <p></p>
-
-
-
-                    <form hidden id="createNewStatisticForm" asp-controller="Map" asp-action="SaveStatistic" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionProperties" method="post">
-
-                        <h5>CREATE or UPDATE statistic</h5>
-
-                        <div class="form-group">
-
-                            <input class="form-control" type="text" name="statisticName" />
-                            <input class="form-control" type="number" value="0" step="0.1" name="statisticValue" />
-                            <input class="form-control" type="text" name="dataSetKey" value="@currentDataSet" hidden />
-                            <input class="form-control" type="text" name="mapName" value="@Model.Map.Name" hidden />
-                            <input class="form-control regionIdInput" type="text" name="regionId" hidden />
-                        </div>
-                        <button class="btn btn-primary" type="submit">Save Statistic</button>
-
-                    </form>
-
-                    <p></p>
-
-                    <div id="regionProperties">
-                    </div>
                 </div>
 
             </div>

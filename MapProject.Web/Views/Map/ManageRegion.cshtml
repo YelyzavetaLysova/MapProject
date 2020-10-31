@@ -1,0 +1,65 @@
+﻿@using MapProject.Web.Models;
+@model ManageRegionModel
+
+    <div>
+
+        <div class="alert alert-primary">Current region - <b>@Model.RegionId</b></div>
+
+        @{
+
+            if (String.IsNullOrWhiteSpace(Model.DataSetName))
+            {
+
+                <div class="alert alert-danger">Dataset is not loaded. Please load dataset to see the data associated with the region</div>
+            }
+            else
+            {
+
+
+                <form id="createNewPropertyForm" asp-controller="Map" asp-action="SaveProperty" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionProperties" method="post">
+
+                    <h5>CREATE or UPDATE property</h5>
+
+                    <div class="form-group">
+
+                        <input class="form-control" type="text" name="propertyName" placeholder="Enter property name" />
+                        <input class="form-control" type="text" name="propertyValue" placeholder="Enter property value" />
+                        <input class="form-control" type="text" name="dataSetKey" value="@Model.DataSetName" hidden />
+                        <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                        <input class="form-control regionIdInput" type="text" name="@Model.RegionId" hidden />
+                    </div>
+
+                    <button class="btn btn-sm btn-primary" type="submit">Save Property</button>
+
+                </form>
+
+                <p></p>
+
+
+
+                <form id="createNewStatisticForm" asp-controller="Map" asp-action="SaveStatistic" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionProperties" method="post">
+
+                    <h5>CREATE or UPDATE statistic</h5>
+
+                    <div class="form-group">
+
+                        <input class="form-control" type="text" name="statisticName" />
+                        <input class="form-control" type="number" value="0" step="0.1" name="statisticValue" />
+                        <input class="form-control" type="text" name="dataSetKey" value="@Model.DataSetName" hidden />
+                        <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                        <input class="form-control regionIdInput" type="text" name="@Model.RegionId" hidden />
+                    </div>
+                    <button class="btn btn-sm btn-primary" type="submit">Save Statistic</button>
+
+                </form>
+
+
+            }
+        }
+
+    </div>
+
+
+    <div id="propertiesManagement">
+
+    </div>

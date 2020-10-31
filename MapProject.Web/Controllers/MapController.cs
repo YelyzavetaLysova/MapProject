@@ -66,20 +66,7 @@ namespace MapProject.Web.Controllers
             return View("RenderMap", renderMapModel);
         }
 
-        public IActionResult CreateDataSet(string dataSetName, string mapName)
-        {
-            DataSet dataSet = new DataSet(dataSetName);
-
-            this._manager.SaveDataSet(dataSet, this._manager.GetMap(mapName));
-
-
-            return this.RenderMap(mapName, dataSetName);
-        }
-
-        public IActionResult LoadDataSet(string dataSetName, string mapName)
-        {
-            return this.RenderMap(mapName, dataSetName);
-        }
+        
 
         [HttpPost]
         public IActionResult CreateMap(IFormFile mapImageFile)
@@ -174,7 +161,7 @@ namespace MapProject.Web.Controllers
                 this._manager.SaveDataSet(dataSet, map);
             }
 
-            return this.GetAllProperties(regionId, dataSetKey, mapName);
+            return this.ManageProperties(regionId, dataSetKey, mapName);
         }
 
         public IActionResult SaveStatistic(string statisticName, double statisticValue, string dataSetKey, string mapName, string regionId)
@@ -212,10 +199,10 @@ namespace MapProject.Web.Controllers
                 this._manager.SaveDataSet(dataSet, map);
             }
 
-            return this.GetAllProperties(regionId, dataSetKey, mapName);
+            return this.ManageProperties(regionId, dataSetKey, mapName);
         }
 
-        public IActionResult GetAllProperties(string regionId, string dataSetName, string mapName)
+        public IActionResult ManageProperties(string regionId, string dataSetName, string mapName)
         {
             var map = this._manager.GetMap(mapName);
 
@@ -223,8 +210,7 @@ namespace MapProject.Web.Controllers
 
             var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
 
-            return PartialView("GetAllProperties", new GetAllPropertiesModel(mapName, dataSetName, regionId, dataItem));
-
+            return ViewComponent("ManageRegion", new ManageRegionModel() { MapName = mapName, DataSetName = dataSetName, RegionId = regionId, DataItem = dataItem });
         }
 
 
@@ -286,8 +272,71 @@ namespace MapProject.Web.Controllers
 
 
 
-            return this.GetAllProperties(regionId, dataSetName, mapName);
+            return this.ManageProperties(regionId, dataSetName, mapName);
         }
+
+
+        #region Region Management
+
+        public IActionResult ManageRegion(string regionId, string dataSetName, string mapName)
+        {
+            var map = this._manager.GetMap(mapName);
+
+            DataSet dataSet = null;
+
+            if (!String.IsNullOrEmpty(dataSetName))
+            {
+                dataSet = this._manager.GetDataSet(dataSetName, map);
+            }
+
+            DataItem dataItem = null;
+
+            if (dataSet != null)
+            {
+                dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+            }
+
+             
+
+            return ViewComponent("ManageRegion", new ManageRegionModel() { RegionId = regionId, DataSetName = dataSetName, MapName = mapName, DataItem = dataItem });
+        }
+
+        #endregion
+
+        #region DataSet Management
+
+        public IActionResult CreateDataSet(string dataSetName, string mapName)
+        {
+            DataSet dataSet = new DataSet(dataSetName);
+
+            this._manager.SaveDataSet(dataSet, this._manager.GetMap(mapName));
+
+
+            return this.RenderMap(mapName, dataSetName);
+        }
+
+        public IActionResult LoadDataSet(string dataSetName, string mapName)
+        {
+            return this.RenderMap(mapName, dataSetName);
+        }
+
+        public IActionResult DeleteDataSet(string dataSetName, string mapName)
+        {
+
+            Map map = this._manager.GetMap(mapName);
+
+            this._manager.RemoveDataSet(dataSetName, map);
+
+            return this.RenderMap(mapName, null);
+        }
+
+        public IActionResult CloseDataSet(string mapName)
+        {
+            return this.RenderMap(mapName, null);
+        }
+
+
+        #endregion
 
     }
 }

@@ -1,0 +1,138 @@
+﻿@model MapProject.Web.Models.ManageRegionModel
+
+<div id="regionManagement">
+
+    <div class="alert alert-primary">Current region - <b>@Model.RegionId</b></div>
+
+    @{
+
+        if (String.IsNullOrWhiteSpace(Model.DataSetName))
+        {
+
+            <div class="alert alert-danger">Dataset is not loaded. Please load dataset to see the data associated with the region</div>
+        }
+        else
+        {
+            <div id="propertiesManagement">
+
+
+                <div class="row">
+                    <div class="col-6">
+                        <form id="createNewPropertyForm" asp-controller="Map" asp-action="SaveProperty" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
+
+                            <h5>CREATE or UPDATE property</h5>
+
+                            <div class="form-group">
+
+                                <input class="form-control" type="text" name="propertyName" placeholder="Enter property name" />
+                                <input class="form-control" type="text" name="propertyValue" placeholder="Enter property value" />
+                                <input class="form-control" type="text" name="dataSetKey" value="@Model.DataSetName" hidden />
+                                <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                                <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
+                            </div>
+
+                            <button class="btn btn-sm btn-primary" type="submit">Save Property</button>
+
+                        </form>
+                    </div>
+                    <div class="col-6">
+                        <form id="createNewStatisticForm" asp-controller="Map" asp-action="SaveStatistic" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
+
+                            <h5>CREATE or UPDATE statistic</h5>
+
+                            <div class="form-group">
+
+                                <input class="form-control" type="text" name="statisticName" />
+                                <input class="form-control" type="number" value="0" step="0.1" name="statisticValue" />
+                                <input class="form-control" type="text" name="dataSetKey" value="@Model.DataSetName" hidden />
+                                <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                                <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
+                            </div>
+                            <button class="btn btn-sm btn-primary" type="submit">Save Statistic</button>
+
+                        </form>
+                    </div>
+                </div>
+
+
+
+
+
+                @{
+
+                    if (Model.DataItem != null)
+                    {
+                        <div id="regionProperties">
+
+                            <h5>Properties:</h5>
+
+                            @foreach (var property in Model.DataItem.Properties)
+                            {
+                                <p><div type="property" class="alert alert-light property" onclick="dataPropertyClick($(this), false)" name="@property.Name">Property: @property.Name, value: @property.Value</div></p>
+
+                            }
+
+                        </div>
+
+                        <div id="regionStatistics">
+
+                            <h5>Statistics:</h5>
+
+                            @foreach (var property in Model.DataItem.Statistics)
+                            {
+                                <p><div type="statistic" class="alert alert-light statistic" onclick="dataPropertyClick($(this), true)" name="@property.Name">Statistic: @property.Name, value: @property.Value</div></p>
+
+                            }
+
+                        </div>
+
+                        <div id="regionAttachments">
+
+                            <h5>Attachments:</h5>
+
+                            @foreach (var property in Model.DataItem.Attachments)
+                            {
+                                <p>Attachment: @property.Name, value: @property.</p>
+                            }
+
+                        </div>
+
+                        <form id="deleteDataPropertyForm" asp-controller="Map" asp-action="DeleteDataProperty" data-ajax="true" data-ajax-mode="replace" data-ajax-update="#regionProperties">
+
+                            <div class="form-group">
+                                <input class="form-control" id="dataPropertyNameInput" type="text" name="dataPropertyName" hidden />
+                                <input class="form-control" id="dataPropertyType" type="checkbox" name="dataPropertyName" hidden />
+                                <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
+                                <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                                <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
+                            </div>
+
+                            <button class="btn btn-primary" id="expanadPropertiesFormSubmit" type="submit">Expand</button>
+
+                        </form>
+
+                        <form id="expanadPropertiesForm" asp-controller="Map" asp-action="ExpanadProperties" data-ajax="true" data-ajax-method="post" method="post">
+
+                            <h5>EXPAND current properties to all regions</h5>
+
+                            <div class="form-group">
+                                <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
+                                <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                                <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
+                            </div>
+
+                            <button class="btn btn-primary" id="expanadPropertiesFormSubmit" type="submit">Expand</button>
+
+                        </form>
+                    }
+                }
+
+
+
+
+            </div>
+
+        }
+    }
+
+</div>

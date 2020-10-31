@@ -69,5 +69,10 @@ namespace MapProject
         {
             this._statisticProvider.SaveDataSet(dataSet, map);
         }
+
+        public void RemoveDataSet(string dataSetKey, Map map)
+        {
+            this._statisticProvider.RemoveDataSet(dataSetKey, map);
+        }
     }
 }

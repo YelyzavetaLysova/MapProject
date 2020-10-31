@@ -1,23 +1,42 @@
-﻿function loadRegionProperties(regionId, dataSetId, mapName) {
+﻿function loadRegionProperties(regionId, dataSetName, mapName) {
 
-    
 
-    if (dataSetId !== "") {
+
+    if (dataSetName !== "") {
 
         $.ajax(
 
             {
-                url: "/Map/GetAllProperties",
-                data: "regionId=" + regionId + "&dataSetName=" + dataSetId + "&mapName=" + mapName,
+                url: "/Map/ManageProperties",
+                data: "regionId=" + regionId + "&dataSetName=" + dataSetName + "&mapName=" + mapName,
                 success: function (htmlToInsert) {
 
-                    $("#regionProperties").html(htmlToInsert);
+                    $("#propertiesManagement").html(htmlToInsert);
 
                 }
             }
 
         );
     }
+}
+
+
+function renderRegionManagement(regionId, dataSetName, mapName) {
+
+    $.ajax(
+
+        {
+            url: "/Map/ManageRegion",
+            data: "regionId=" + regionId + "&dataSetName=" + dataSetName + "&mapName=" + mapName,
+            success: function (htmlToInsert) {
+
+                $("#regionManagement").html(htmlToInsert);
+
+            }
+        }
+
+    );
+
 }
 
 
@@ -30,78 +49,54 @@ function dataPropertyClick(element, isStatistic) {
 function regionOnClickHandler(clicked_id) {
 
 
-    var dataSetId = document.getElementById("currentDataSet").innerText;
-
-    if (dataSetId === "") {
-
-
-        alert("Please load dataset to be able to choose region and see details");
-        return;
-
-    }
+    var dataSetName = document.getElementById("currentDataSet").innerText;
 
     var mapName = document.getElementById("currentMapName").innerText;
 
-    var element = document.getElementById(clicked_id);
-
-    var currentRegionIdElement = document.getElementById("currentRegionId");
-
-    if (currentRegionIdElement !== null) {
-
-        currentRegionIdElement.innerText = clicked_id;
-
-        $(".regionIdInput").val(clicked_id);
+    var regionElement = document.getElementById(clicked_id);
 
 
-        //document.getElementById("regionEditText").hidden = true;
 
-        document.getElementById("createNewPropertyForm").hidden = false;
+    renderRegionManagement(clicked_id, dataSetName, mapName);
 
-        document.getElementById("regionIdLavel").innerText = "Current region - " + clicked_id;
-
-        document.getElementById("createNewStatisticForm").hidden = false;
-
-    }
-
-    loadRegionProperties(clicked_id, dataSetId, mapName);
+    //loadRegionProperties(clicked_id, dataSetName, mapName);
 
 
-    if (element.getAttribute("fill") === "white") {
+    if (regionElement.getAttribute("fill") === "white") {
 
-        element.setAttribute("fill", "red");
+        regionElement.setAttribute("fill", "red");
 
         return;
     }
 
-    if (element.getAttribute("fill") === "red") {
+    if (regionElement.getAttribute("fill") === "red") {
 
-        element.setAttribute("fill", "green");
-
-        return;
-    }
-
-    if (element.getAttribute("fill") === "green") {
-
-        element.setAttribute("fill", "blue");
+        regionElement.setAttribute("fill", "green");
 
         return;
     }
 
-    if (element.getAttribute("fill") === "blue") {
+    if (regionElement.getAttribute("fill") === "green") {
 
-        element.setAttribute("fill", "yellow");
-
-        return;
-    }
-
-    if (element.getAttribute("fill") === "yellow") {
-
-        element.setAttribute("fill", "white");
+        regionElement.setAttribute("fill", "blue");
 
         return;
     }
 
-    //element.setAttribute("fill", "red");
+    if (regionElement.getAttribute("fill") === "blue") {
+
+        regionElement.setAttribute("fill", "yellow");
+
+        return;
+    }
+
+    if (regionElement.getAttribute("fill") === "yellow") {
+
+        regionElement.setAttribute("fill", "white");
+
+        return;
+    }
+
 }
 
 
