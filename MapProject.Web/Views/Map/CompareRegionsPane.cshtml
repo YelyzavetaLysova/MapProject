@@ -1,0 +1,14 @@
+﻿@using MapProject.Web.Controllers;
+
+@*@{
+    string firstRegon = String.IsNullOrEmpty(.FirstRegionId) ? Model.FirstRegionId : Model.FirstRegionName;
+    string secondRegon = String.IsNullOrEmpty(Model.SecondRegionName) ? Model.SecondRegionId : Model.SecondRegionName;
+}*@
+
+<div class="alert alert-primary">
+
+    <p>First region: @CompareContext.FirstRegionId</p>
+
+    <p>Second region: @CompareContext.SecondRegionId</p>
+
+</div>

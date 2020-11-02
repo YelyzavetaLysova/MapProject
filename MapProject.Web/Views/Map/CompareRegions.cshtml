@@ -1,0 +1,23 @@
+﻿@model MapProject.Web.Models.CompareRegionsModel
+
+@{
+    ViewBag.Title = "Comparing regions";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h5>Comparing regions @Model.Region1.Id, @Model.Region2.Id</h5>
+
+<div class="row">
+
+    <table>
+        <tr>
+            <td>First region:</td>
+            <td>Second region:</td>
+        </tr>
+    </table>
+
+</div>
+
+@*
+    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
+*@

@@ -18,10 +18,107 @@ using Newtonsoft.Json;
 
 namespace MapProject.Web.Controllers
 {
+
+    public static class CompareContext
+    {
+
+        public static string FirstRegionId
+        {
+            get;
+            private set;
+        }
+
+        public static string SecondRegionId
+        {
+            get;
+            private set;
+        }
+
+        public static int Step
+        {
+            get;
+            private set;
+        } 
+
+        public static void SetRegionToCompare(string regionToCompare)
+        {
+            if (regionToCompare == SecondRegionId || regionToCompare == FirstRegionId)
+            {
+                return;
+            }
+
+            if (Step == 1)
+            {
+                SecondRegionId = regionToCompare;
+                Step = 0;
+            }
+            else
+            {
+
+                if (Step == 0)
+                {
+                    FirstRegionId = regionToCompare;
+                    Step++;
+                }
+            }
+
+        }
+
+    }
+
+
+    public static class Strings
+    {
+        public static string NamePropertyKey = "Name";
+        public static string DescriptionPropertyKey = "Description";
+        public static string ReferencedMapKey = "";
+    }
+
     public class MapController : Controller
     {
         Manager _manager;
         IWebHostEnvironment _hostingEnvironment;
+
+
+        public IActionResult AddRegionToCompare(string mapName, string dataSetName, string regionToCompare)
+        {
+            CompareContext.SetRegionToCompare(regionToCompare);
+
+            string firstRegionName = String.Empty;
+            string secodRegionName = String.Empty;
+
+            var map = this._manager.GetMap(mapName);
+            var dataSet = this._manager.GetDataSet(dataSetName, map);
+
+            var firstDataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == CompareContext.FirstRegionId);
+            var secondtDataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == CompareContext.SecondRegionId);
+
+            if (firstDataItem != null)
+            {
+                var nameProperty = firstDataItem.Properties.FirstOrDefault(x => x.Name == Strings.NamePropertyKey);
+
+                if (nameProperty != null)
+                {
+                    firstRegionName = nameProperty.Value;
+                }
+            }
+
+            if (secondtDataItem != null)
+            {
+                var nameProperty = secondtDataItem.Properties.FirstOrDefault(x => x.Name == Strings.NamePropertyKey);
+
+                if (nameProperty != null)
+                {
+                    secodRegionName = nameProperty.Value;
+                }
+            }
+
+
+            //, new CopmareRegionPaneModel() { FirstRegionId = CompareContext.FirstRegionId, SecondRegionId = CompareContext.SecondRegionId, FirstRegionName = firstRegionName, SecondRegionName = secodRegionName }
+
+            return PartialView("CompareRegionsPane");
+        }
+
 
         public MapController(IWebHostEnvironment hostingEnvironment)
         {
@@ -480,9 +577,9 @@ namespace MapProject.Web.Controllers
                     this._manager.SaveDataSet(dataSet, map);
                 }
 
-                var nameProperty = dataItem.Properties.FirstOrDefault(x => x.Name == "Name");
-                var descriptionProperty = dataItem.Properties.FirstOrDefault(x => x.Name == "Description");
-                var referencedMapProperty = dataItem.Properties.FirstOrDefault(x => x.Name == "ReferencedMap");
+                var nameProperty = dataItem.Properties.FirstOrDefault(x => x.Name == Strings.NamePropertyKey);
+                var descriptionProperty = dataItem.Properties.FirstOrDefault(x => x.Name == Strings.DescriptionPropertyKey);
+                var referencedMapProperty = dataItem.Properties.FirstOrDefault(x => x.Name == Strings.ReferencedMapKey);
 
                 if (nameProperty != null)
                 {
