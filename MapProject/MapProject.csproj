@@ -9,6 +9,7 @@
     <Compile Remove="Statistic\Attachment.cs" />
     <Compile Remove="Statistic\Property.cs" />
     <Compile Remove="Statistic\Statistic.cs" />
+    <Compile Remove="Statistic\Structure.cs" />
   </ItemGroup>
 
   <ItemGroup>

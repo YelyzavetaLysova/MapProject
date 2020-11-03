@@ -84,7 +84,6 @@ namespace MapProject.Web.Controllers
 
         public MapController(IWebHostEnvironment hostingEnvironment, Manager manager)
         {
-
             this._hostingEnvironment = hostingEnvironment;
             this._manager = manager;
         }
@@ -614,7 +613,7 @@ namespace MapProject.Web.Controllers
             }
         }
 
-        public IActionResult DrawStatistic(string statisticName, string dataSetName, string mapName)
+        public IActionResult DrawStatistic(string statisticName, string dataSetName, string mapName, string color)
         {
 
 
@@ -655,7 +654,7 @@ namespace MapProject.Web.Controllers
                 if (statistic == null)
                 {
                     item.HasData = false;
-                    item.Color = new Rgb24(255, 255, 255);
+                    item.Color = Color.White;
                     item.Opacity = 1;
                 }
                 else
@@ -664,7 +663,7 @@ namespace MapProject.Web.Controllers
                     //string color = Color.Red.ToString();
 
                     item.HasData = true;
-                    item.Color = new Rgb24(254, 0, 0);
+                    item.Color = Rgba32.ParseHex(color).Rgb; ;
                     item.Value = statistic.Value;
 
                     if (maxValue == minValue)

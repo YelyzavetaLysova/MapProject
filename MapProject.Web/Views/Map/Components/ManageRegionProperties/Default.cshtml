@@ -31,9 +31,18 @@
 
                             @foreach (var property in Model.DataItem.Statistics)
                             {
-
                                 //public IActionResult DrawStatistic(string statisticName, string dataSetName, string mapName)
-                                <p><div type="statistic" class="alert alert-info statistic" onclick="dataPropertyClick($(this), true)" name="@property.Name">@property.Name: @property.Value</div><a class="btn btn-sm btn-primary" href="/Map/DrawStatistic?statisticName=@property.Name&dataSetName=@Model.DataSetName&mapName=@Model.MapName" target="_blank">Draw statistic</a></p>
+                                <p><div type="statistic" class="alert alert-info statistic" onclick="dataPropertyClick($(this), true)" name="@property.Name">@property.Name: @property.Value</div></p>
+                                <form id="addToCompare" asp-controller="Map" asp-action="DrawStatistic" method="post">
+
+                                    <input type="color" name="color" />
+                                    <input type="text" name="statisticName" value="@property.Name" hidden />
+                                    <input type="text" name="dataSetName" value="@Model.DataSetName" hidden />
+                                    <input type="text" name="mapName" value="@Model.MapName" hidden />
+
+                                    <button type="submit" formtarget="_blank">Draw</button>
+
+                                </form>
                             }
 
                         </div>

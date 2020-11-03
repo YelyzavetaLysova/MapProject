@@ -32,9 +32,8 @@
 
     <div class="row">
 
-        <nav id="sidebarMenu" class="col-md-3 col-lg-3 d-md-block bg-light sidebar collapse">
+        <nav id="sidebarMenu" class="col-3 d-md-block bg-light sidebar collapse">
             <div class="sidebar-sticky pt-3">
-
 
                 <div class="alert alert-primary">Current map - <b>@Model.Map.Name</b></div>
 
@@ -105,7 +104,7 @@
 
                 <div id="regionManagement">
 
-                       @await Component.InvokeAsync(ManageRegionViewComponent.Name, Model);
+                       @await Component.InvokeAsync(ManageRegionViewComponent.Name, Model)
 
                 </div>
 
@@ -115,57 +114,69 @@
 
 
     <main class="main-rendermap">
-        <div class="svg-ct">
+        
+        <div class="row">
 
-            @*<svg height="300px" width="300px">*@
+            <div class="col-3"></div>
+            <div class="col-9">
 
-            <svg height="@maxY" width="@maxX">
-                @{
+                <div class="svg-ct">
 
-                    foreach (var region in Model.Map.Regions)
-                    {
+                    @*<svg height="300px" width="300px">*@
 
-                        <g>
-                            @{
+                    <svg height="@maxY" width="@maxX">
+                        @{
 
-                                string points = String.Empty;
-                            }
-
-                            @for (int i = 0; i < region.Points.Count; i++)
+                            foreach (var region in Model.Map.Regions)
                             {
 
-                                var point = region.Points[i];
+                                <g>
+                                    @{
 
-                                points += point.X + "," + point.Y + " ";
-                            }
-
-                            @{ 
-                                string fill = "white";
-                                double opacity = 1;
-
-                                if (Model.StatisticColorItems != null)
-                                {
-                                    var statisticColorItem = Model.StatisticColorItems.FirstOrDefault(x => x.RegionId == region.Id);
-
-                                    if (statisticColorItem != null)
-                                    {
-                                        fill = statisticColorItem.Color.ToString().Replace("24", String.Empty);
-                                        opacity = statisticColorItem.Opacity;
+                                        string points = String.Empty;
                                     }
-                                }
 
+                                    @for (int i = 0; i < region.Points.Count; i++)
+                                    {
+
+                                        var point = region.Points[i];
+
+                                        points += point.X + "," + point.Y + " ";
+                                    }
+
+                                    @{
+                                        string fill = "white";
+                                        double opacity = 1;
+
+                                        if (Model.StatisticColorItems != null)
+                                        {
+                                            var statisticColorItem = Model.StatisticColorItems.FirstOrDefault(x => x.RegionId == region.Id);
+
+                                            if (statisticColorItem != null)
+                                            {
+                                                fill = statisticColorItem.Color.ToString().Replace("24", String.Empty);
+                                                opacity = statisticColorItem.Opacity;
+                                            }
+                                        }
+
+                                    }
+
+                                    <polygon id="@region.Id" points="@points.Remove(points.Length - 1)" fill="@fill" opacity="@opacity" stroke="black" onclick="regionOnClickHandler(this.id)" />
+
+                                </g>
                             }
 
-                            <polygon id="@region.Id" points="@points.Remove(points.Length - 1)" fill="@fill" opacity="@opacity" stroke="black" onclick="regionOnClickHandler(this.id)" />
 
-                        </g>
-                    }
+                        }
+                    </svg>
 
+                </div>
 
-                }
-            </svg>
+            </div>
 
         </div>
+
+       
     </main>
 
 
