@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace MapProject.Web.Models
 {
 
-    public class CreateMapModel : PageModel
+    public class CreateMapModel : BaseModel
     {
         public string FilePath
         {
@@ -27,13 +27,9 @@ namespace MapProject.Web.Models
             }
         }
 
-        public CreateMapModel(string pathToImage)
+        public CreateMapModel(string pathToImage) : base(String.Empty, String.Empty, String.Empty)
         {
             this.FilePath = pathToImage;
-        }
-
-        public CreateMapModel()
-        {
         }
     }
 }

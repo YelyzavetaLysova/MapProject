@@ -13,6 +13,8 @@ namespace MapProject
     public class Manager
     {
 
+        Dictionary<string, object> _cache;
+
         IMapParser _parser;
         IMapProvider _mapProvider;
         IStatisticProvider _statisticProvider;
@@ -22,6 +24,8 @@ namespace MapProject
             this._parser = parser;
             this._mapProvider = mapProvider;
             this._statisticProvider = statisticProvider;
+
+            this._cache = new Dictionary<string, object>();
         }
 
         public Map PrarseMapFromImage(string pathToImage)
@@ -40,12 +44,27 @@ namespace MapProject
 
         public Map GetMap(string name)
         {
-            return this._mapProvider.GetMap(name);
+            if (this._cache.ContainsKey(name))
+            {
+                return this._cache[name] as Map;
+            }
+
+            var map = this._mapProvider.GetMap(name);
+
+            if (map != null)
+            {
+                this._cache[name] = map;
+            }
+
+            return map;
         }
 
         public void SaveMap(Map map)
         {
             this._mapProvider.SaveMap(map);
+
+            this._cache[map.Name] = map;
+
         }
 
         public List<string> GetMaps()
@@ -62,12 +81,28 @@ namespace MapProject
 
         public DataSet GetDataSet(string dataSetKey, Map map)
         {
-            return this._statisticProvider.GetDataSet(dataSetKey, map);
+            string dataSetCacheKey = GetDataSetCacheKey(dataSetKey, map.Name);
+
+            if (this._cache.ContainsKey(dataSetCacheKey))
+            {
+                return this._cache[dataSetCacheKey] as DataSet;
+            }
+
+            var dataSet = this._statisticProvider.GetDataSet(dataSetKey, map);
+
+            if (dataSet != null)
+            {
+                this._cache[dataSetKey] = dataSet;
+            }
+
+            return dataSet;
         }
 
         public void SaveDataSet(DataSet dataSet, Map map)
         {
             this._statisticProvider.SaveDataSet(dataSet, map);
+
+            this._cache[this.GetDataSetCacheKey(dataSet.Key, map.Name)] = dataSet;
         }
 
         public void AddAttachment(string dataSetKey, string regionId, Map map, string pathToFile)
@@ -78,6 +113,19 @@ namespace MapProject
         public void RemoveDataSet(string dataSetKey, Map map)
         {
             this._statisticProvider.RemoveDataSet(dataSetKey, map);
+
+            string dataSetCacheKey = GetDataSetCacheKey(dataSetKey, map.Name);
+
+            if (this._cache.ContainsKey(dataSetCacheKey))
+            {
+                this._cache.Remove(dataSetCacheKey);
+            }
+        }
+
+
+        private string GetDataSetCacheKey(string dataSetKey, string mapName)
+        {
+            return mapName + "_" + dataSetKey;
         }
     }
 }

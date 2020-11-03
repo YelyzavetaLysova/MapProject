@@ -31,13 +31,12 @@
 
                             @foreach (var property in Model.DataItem.Statistics)
                             {
-                                <p><div type="statistic" class="alert alert-info statistic" onclick="dataPropertyClick($(this), true)" name="@property.Name">@property.Name: @property.Value</div></p>
 
+                                //public IActionResult DrawStatistic(string statisticName, string dataSetName, string mapName)
+                                <p><div type="statistic" class="alert alert-info statistic" onclick="dataPropertyClick($(this), true)" name="@property.Name">@property.Name: @property.Value</div><a class="btn btn-sm btn-primary" href="/Map/DrawStatistic?statisticName=@property.Name&dataSetName=@Model.DataSetName&mapName=@Model.MapName" target="_blank">Draw statistic</a></p>
                             }
 
                         </div>
-
-                        //public IActionResult DownloadAttachment(string regionId, string dataSetName, string mapName, string attachmentName)
 
                         <div id="regionAttachments">
 

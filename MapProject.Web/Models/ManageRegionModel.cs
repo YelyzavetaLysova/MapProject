@@ -6,14 +6,8 @@ using MapProject.Statistic;
 
 namespace MapProject.Web.Models
 {
-    public class ManageRegionModel
+    public class ManageRegionModel  : BaseModel
     {
-        public string RegionId
-        {
-            get;
-            set;
-        }
-
         public string RegionName
         {
             get;
@@ -25,20 +19,7 @@ namespace MapProject.Web.Models
             get;
             set;
         }
-
-        public string MapName
-        {
-            get;
-            set;
-        }
-
-        public string ReferencedMapName
-        {
-            get;
-            set;
-        }
-
-        public string DataSetName
+        public string ReferencedMap
         {
             get;
             set;
@@ -54,6 +35,15 @@ namespace MapProject.Web.Models
         {
             get;
             set;
+        }
+
+        public ManageRegionModel(string regionName, string regionDescription, string referencedMap, DataItem dataItem, List<string> maps, BaseModel baseModel) : base(baseModel)
+        {
+            this.RegionName = regionName;
+            this.RegionDescription = regionDescription;
+            this.ReferencedMap = referencedMap;
+            this.DataItem = dataItem;
+            this.Maps = maps;
         }
     }
 }

@@ -8,6 +8,7 @@ using MapProject.Parsing;
 using MapProject.Saving;
 using MapProject.Statistic;
 using MapProject.Statistic.FileSystem;
+using MapProject.Web.Components;
 using MapProject.Web.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -15,13 +16,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 using Newtonsoft.Json;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.ColorSpaces;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace MapProject.Web.Controllers
 {
 
-    public static class CompareContext
+    public static class MapContext
     {
-
         public static string FirstRegionId
         {
             get;
@@ -71,7 +74,7 @@ namespace MapProject.Web.Controllers
     {
         public static string NamePropertyKey = "Name";
         public static string DescriptionPropertyKey = "Description";
-        public static string ReferencedMapKey = "";
+        public static string ReferencedMapKey = "ReferencedMap";
     }
 
     public class MapController : Controller
@@ -79,79 +82,22 @@ namespace MapProject.Web.Controllers
         Manager _manager;
         IWebHostEnvironment _hostingEnvironment;
 
-
-        public IActionResult AddRegionToCompare(string mapName, string dataSetName, string regionToCompare)
-        {
-            CompareContext.SetRegionToCompare(regionToCompare);
-
-            string firstRegionName = String.Empty;
-            string secodRegionName = String.Empty;
-
-            var map = this._manager.GetMap(mapName);
-            var dataSet = this._manager.GetDataSet(dataSetName, map);
-
-            var firstDataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == CompareContext.FirstRegionId);
-            var secondtDataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == CompareContext.SecondRegionId);
-
-            if (firstDataItem != null)
-            {
-                var nameProperty = firstDataItem.Properties.FirstOrDefault(x => x.Name == Strings.NamePropertyKey);
-
-                if (nameProperty != null)
-                {
-                    firstRegionName = nameProperty.Value;
-                }
-            }
-
-            if (secondtDataItem != null)
-            {
-                var nameProperty = secondtDataItem.Properties.FirstOrDefault(x => x.Name == Strings.NamePropertyKey);
-
-                if (nameProperty != null)
-                {
-                    secodRegionName = nameProperty.Value;
-                }
-            }
-
-
-            //, new CopmareRegionPaneModel() { FirstRegionId = CompareContext.FirstRegionId, SecondRegionId = CompareContext.SecondRegionId, FirstRegionName = firstRegionName, SecondRegionName = secodRegionName }
-
-            return PartialView("CompareRegionsPane");
-        }
-
-
-        public MapController(IWebHostEnvironment hostingEnvironment)
+        public MapController(IWebHostEnvironment hostingEnvironment, Manager manager)
         {
 
             this._hostingEnvironment = hostingEnvironment;
-
-            IMapProvider saveProvider = new JsonFileSystemMapProvider();
-            IMapParser mapParser = new MapParser();
-            IStatisticProvider statisticProvider = new JsonFyleSystemStatisticProvider();
-
-            this._manager = new Manager(mapParser, saveProvider, statisticProvider);
+            this._manager = manager;
         }
         public IActionResult Index()
         {
             return View();
         }
 
-
-        //public async Task<IActionResult> OnPostUploadAsync(List<IFormFile> battlePlans)
-        //{
-
-        //}
-
-        //public 
-
-
-        public IActionResult RenderMap(string mapName, string dataSetName)
+        public IActionResult RenderMap(string mapName, string dataSetName, string regionId)
         {
             Map map = this._manager.GetMap(mapName);
 
             List<string> dataSetNames = this._manager.GetDataSets(map);
-
-
 
             DataSet dataSet = null;
 
@@ -160,12 +106,10 @@ namespace MapProject.Web.Controllers
                 dataSet = this._manager.GetDataSet(dataSetName, map);
             }
 
-            RenderMapModel renderMapModel = new RenderMapModel(map, dataSetNames, dataSet);
+            RenderMapModel renderMapModel = new RenderMapModel(map, dataSetNames, dataSet, regionId);
 
             return View("RenderMap", renderMapModel);
         }
-
-        
 
         [HttpPost]
         public IActionResult CreateMap(IFormFile mapImageFile)
@@ -232,16 +176,20 @@ namespace MapProject.Web.Controllers
 
             var dataSet = this._manager.GetDataSet(dataSetKey, map);
 
+            //var property = dataSet.GetProperty(propertyName, regionId);
+
+
             if (!String.IsNullOrWhiteSpace(regionId))
             {
-                var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+                var dataItem = dataSet.GetDataItem(regionId);
 
                 if (dataItem == null)
                 {
                     dataItem = new DataItem(regionId);
+                    dataSet.DataItems.Add(dataItem);
                 }
 
-                var property = dataItem.Properties.FirstOrDefault(x => x.Name == propertyName);
+                var property = dataItem.GetProperty(propertyName);
 
                 if (property == null)
                 {
@@ -252,10 +200,6 @@ namespace MapProject.Web.Controllers
                 {
                     property.Value = propertyValue;
                 }
-
-
-
-                dataSet.DataItems.Add(dataItem);
 
                 this._manager.SaveDataSet(dataSet, map);
             }
@@ -272,14 +216,15 @@ namespace MapProject.Web.Controllers
 
             if (!String.IsNullOrWhiteSpace(regionId))
             {
-                var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+                var dataItem = dataSet.GetDataItem(regionId);
 
                 if (dataItem == null)
                 {
                     dataItem = new DataItem(regionId);
+                    dataSet.DataItems.Add(dataItem);
                 }
 
-                var statistic = dataItem.Statistics.FirstOrDefault(x => x.Name == statisticName);
+                var statistic = dataItem.GetStatistic(statisticName);
 
                 if (statistic == null)
                 {
@@ -291,39 +236,23 @@ namespace MapProject.Web.Controllers
                     statistic.Value = statisticValue;
                 }
 
-
-
-                dataSet.DataItems.Add(dataItem);
-
                 this._manager.SaveDataSet(dataSet, map);
             }
 
             return this.ManageRegion(regionId, dataSetKey, mapName);
         }
 
-        //public IActionResult ManageRegion(string regionId, string dataSetName, string mapName)
-        //{
-        //    var map = this._manager.GetMap(mapName);
-
-        //    var dataSet = this._manager.GetDataSet(dataSetName, map);
-
-        //    var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
-
-        //    return ViewComponent("ManageRegion", new ManageRegionModel() { MapName = mapName, DataSetName = dataSetName, RegionId = regionId, DataItem = dataItem });
-        //}
-
-
         public IActionResult ExpanadProperties(string regionId, string dataSetName, string mapName)
         {
             var map = this._manager.GetMap(mapName);
             var dataSet = this._manager.GetDataSet(dataSetName, map);
-            var exampleDataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+            var exampleDataItem = dataSet.GetDataItem(regionId);
 
             if (exampleDataItem != null)
             {
                 foreach (var region in map.Regions)
                 {
-                    var currentDataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == region.Id);
+                    var currentDataItem = dataSet.GetDataItem(region.Id);
 
                     if (currentDataItem == null)
                     {
@@ -365,7 +294,6 @@ namespace MapProject.Web.Controllers
             return this.ManageRegion(regionId, dataSetName, mapName);
         }
 
-
         public IActionResult ManageDataProperty(string dataPropertyName, string dataSetName, string mapName, string regionId, bool ifStatistic, string toDo)
         {
 
@@ -391,7 +319,7 @@ namespace MapProject.Web.Controllers
 
                 foreach (var region in regionsToProcess)
                 {
-                    var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == region);
+                    var dataItem = dataSet.GetDataItem(region);
 
                     if (ifStatistic)
                     {
@@ -407,7 +335,7 @@ namespace MapProject.Web.Controllers
 
             if (toDo == "Expand")
             {
-                var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+                var dataItem = dataSet.GetDataItem(regionId);
 
                 if (ifStatistic)
                 {
@@ -415,9 +343,9 @@ namespace MapProject.Web.Controllers
 
                     foreach(var region in map.Regions)
                     {
-                        var regionDataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == region.Id);
+                        var regionDataItem = dataSet.GetDataItem(region.Id);
 
-                        if (regionDataItem.Statistics.FirstOrDefault(x => x.Name == dataPropertyName) == null)
+                        if (regionDataItem.GetStatistic(dataPropertyName) == null)
                         {
                             regionDataItem.Statistics.Add(new DataProperty<double>(dataPropertyName, 0));
                         }
@@ -430,7 +358,7 @@ namespace MapProject.Web.Controllers
 
                     foreach (var region in map.Regions)
                     {
-                        var regionDataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == region.Id);
+                        var regionDataItem = dataSet.GetDataItem(region.Id);
 
                         if (regionDataItem == null)
                         {
@@ -438,7 +366,7 @@ namespace MapProject.Web.Controllers
                             dataSet.DataItems.Add(regionDataItem);
                         }
 
-                        if (regionDataItem.Properties.FirstOrDefault(x => x.Name == dataPropertyName) == null)
+                        if (regionDataItem.GetProperty(dataPropertyName) == null)
                         {
                             regionDataItem.Properties.Add(new DataProperty<string>(dataPropertyName, String.Empty));
                         }
@@ -453,13 +381,6 @@ namespace MapProject.Web.Controllers
 
             return this.ManageRegion(regionId, dataSetName, mapName);
         }
-
-
-                    //        <input type = "file" name="attachmentFile" />
-
-                    //<input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
-                    //<input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
-                    //<input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
 
         public IActionResult AddAttachment(string dataSetName, string mapName, string regionId, IFormFile attachmentFile)
         {
@@ -501,7 +422,7 @@ namespace MapProject.Web.Controllers
 
             var dataSet = this._manager.GetDataSet(dataSetName, map);
 
-            var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+            var dataItem = dataSet.GetDataItem(regionId);
 
             var attachment = dataItem.Attachments.FirstOrDefault(x => x.Name == attachmentName);
 
@@ -517,14 +438,12 @@ namespace MapProject.Web.Controllers
             return this.ManageRegion(regionId, dataSetName, mapName);
         }
 
-        #region Region Management
-
         public IActionResult DownloadAttachment(string regionId, string dataSetName, string mapName, string attachmentName)
         {
 
             var map = this._manager.GetMap(mapName);
             var dataSet = this._manager.GetDataSet(dataSetName, map);
-            var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+            var dataItem = dataSet.GetDataItem(regionId);
 
             var attachment = dataItem.Attachments.FirstOrDefault(x => x.Name == attachmentName);
 
@@ -549,62 +468,7 @@ namespace MapProject.Web.Controllers
 
         public IActionResult ManageRegion(string regionId, string dataSetName, string mapName)
         {
-            var map = this._manager.GetMap(mapName);
-
-            DataSet dataSet = null;
-
-            if (!String.IsNullOrEmpty(dataSetName))
-            {
-                dataSet = this._manager.GetDataSet(dataSetName, map);
-            }
-
-            DataItem dataItem = null;
-
-            string regionName = String.Empty;
-            string regionDescription = String.Empty;
-            string referencedMap = String.Empty;
-
-            if (dataSet != null)
-            {
-                dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
-
-                if (dataItem == null)
-                {
-                    dataItem = new DataItem(regionId);
-                    dataSet.DataItems.Add(dataItem);
-
-
-                    this._manager.SaveDataSet(dataSet, map);
-                }
-
-                var nameProperty = dataItem.Properties.FirstOrDefault(x => x.Name == Strings.NamePropertyKey);
-                var descriptionProperty = dataItem.Properties.FirstOrDefault(x => x.Name == Strings.DescriptionPropertyKey);
-                var referencedMapProperty = dataItem.Properties.FirstOrDefault(x => x.Name == Strings.ReferencedMapKey);
-
-                if (nameProperty != null)
-                {
-                    regionName = nameProperty.Value;
-                }
-
-                if (descriptionProperty != null)
-                {
-                    regionDescription = descriptionProperty.Value;
-                }
-
-                if (referencedMapProperty != null)
-                {
-                    referencedMap = referencedMapProperty.Value;
-                }
-
-            }
-
-            var maps = this._manager.GetMaps();
-
-            maps.RemoveAll(x => x == mapName);
-
-           
-
-            return ViewComponent("ManageRegion", new ManageRegionModel() { RegionId = regionId, DataSetName = dataSetName, MapName = mapName, DataItem = dataItem, RegionName = regionName, RegionDescription = regionDescription, Maps = maps, ReferencedMapName = referencedMap });
+            return ViewComponent(ManageRegionViewComponent.Name, new BaseModel(mapName, dataSetName, regionId));
         }
 
         public IActionResult AssignMap(string mapToAssignName, string regionId, string dataSetName, string mapName)
@@ -617,18 +481,18 @@ namespace MapProject.Web.Controllers
             {
                 var dataSet = this._manager.GetDataSet(dataSetName, map);
 
-                var dataItem = dataSet.DataItems.FirstOrDefault(x => x.StructureId == regionId);
+                var dataItem = dataSet.GetDataItem(regionId);
 
                 if (dataItem == null)
                 {
                     dataItem = new DataItem(regionId);
                 }
 
-                var property = dataItem.Properties.FirstOrDefault(x => x.Name == "ReferencedMap");
+                var property = dataItem.GetProperty(Strings.ReferencedMapKey);
 
                 if (property == null)
                 {
-                    property = new DataProperty<string>("ReferencedMap", mapToAssignName);
+                    property = new DataProperty<string>(Strings.ReferencedMapKey, mapToAssignName);
 
                     dataItem.Properties.Add(property);
                 }
@@ -640,9 +504,50 @@ namespace MapProject.Web.Controllers
             return this.ManageRegion(regionId, dataSetName, mapName);
         }
 
-        #endregion
+        public IActionResult AddRegionToCompare(string mapName, string dataSetName, string regionToCompare)
+        {
+            MapContext.SetRegionToCompare(regionToCompare);
 
-        #region DataSet Management
+            string firstRegionName = String.Empty;
+            string secondRegionName = String.Empty;
+
+            var map = this._manager.GetMap(mapName);
+            var dataSet = this._manager.GetDataSet(dataSetName, map);
+
+
+
+            var firstDataItem = dataSet.GetDataItem(MapContext.FirstRegionId);
+            var secondDataItem = dataSet.GetDataItem(MapContext.SecondRegionId);
+
+
+            //var firstRegionNameProperty = dataSet.GetProperty(Strings.NamePropertyKey, CompareContext.FirstRegionId);
+            //var secondRegionNameProperty = dataSet.GetProperty(Strings.NamePropertyKey, CompareContext.SecondRegionId);
+
+
+            //var firstRegionNameProperty
+
+            //firstRegionName = dataSet.GetProperty(Strings.NamePropertyKey, CompareContext.FirstRegionId) == null ? String.Empty : ;
+
+            //string 
+
+            if (firstDataItem != null)
+            {
+                var nameProperty = firstDataItem.GetProperty(Strings.NamePropertyKey);
+
+                firstRegionName = nameProperty == null ? MapContext.FirstRegionId : nameProperty.Value;
+
+            }
+
+            if (secondDataItem != null)
+            {
+                var nameProperty = secondDataItem.GetProperty(Strings.NamePropertyKey);
+
+                secondRegionName = nameProperty == null ? MapContext.SecondRegionId : nameProperty.Value;
+
+            }
+
+            return ViewComponent(CompareRegionsPaneViewComponent.Name, new CopmareRegionsPaneModel(firstRegionName, secondRegionName, new BaseModel(mapName, dataSetName, null)));
+        }
 
         public IActionResult CreateDataSet(string dataSetName, string mapName)
         {
@@ -656,11 +561,7 @@ namespace MapProject.Web.Controllers
 
         public IActionResult LoadDataSet(string dataSetName, string mapName)
         {
-            //DataSet dataset = 
-
             return RedirectToAction("RenderMap", new { dataSetName = dataSetName, mapName = mapName });
-
-            //return this.RenderMap(mapName, dataSetName);
         }
 
         public IActionResult DeleteDataSet(string dataSetName, string mapName)
@@ -679,7 +580,112 @@ namespace MapProject.Web.Controllers
         }
 
 
-        #endregion
+        public class StatisticColorItem
+        {
+
+            public string RegionId
+            {
+                get;
+                set;
+            }
+
+            public double Value
+            {
+                get;
+                set;
+            }
+
+            public bool HasData
+            {
+                get;
+                set;
+            }
+
+            public Rgb24 Color
+            {
+                get;
+                set;
+            }
+
+            public double Opacity
+            {
+                get;
+                set;
+            }
+        }
+
+        public IActionResult DrawStatistic(string statisticName, string dataSetName, string mapName)
+        {
+
+
+            var colorsDictionary = new List<StatisticColorItem>();
+
+            Map map = this._manager.GetMap(mapName);
+            DataSet dataSet = this._manager.GetDataSet(dataSetName, map);
+
+            var dataItems = dataSet.DataItems.Where(x => x.StructureId == dataSet.DataItems.First().StructureId);
+
+            List<double> values = new List<double>();
+
+            foreach (var dataItem in dataSet.DataItems)
+            {
+                DataProperty<double> statistic = dataItem.GetStatistic(statisticName);
+
+                if (statistic != null)
+                {
+                    values.Add(statistic.Value);
+                }
+            }
+
+            double minValue = values.Min();
+            double maxValue = values.Max();
+
+            List<StatisticColorItem> items = new List<StatisticColorItem>();
+
+            foreach (var region in map.Regions)
+            {
+                DataItem dataItem = dataSet.GetDataItem(region.Id);
+
+                DataProperty<double> statistic = dataItem == null ? null : dataItem.GetStatistic(statisticName);
+
+                StatisticColorItem item = new StatisticColorItem();
+
+                item.RegionId = region.Id;
+
+                if (statistic == null)
+                {
+                    item.HasData = false;
+                    item.Color = new Rgb24(255, 255, 255);
+                    item.Opacity = 1;
+                }
+                else
+                {
+
+                    //string color = Color.Red.ToString();
+
+                    item.HasData = true;
+                    item.Color = new Rgb24(254, 0, 0);
+                    item.Value = statistic.Value;
+
+                    if (maxValue == minValue)
+                    {
+                        item.Opacity = 1;
+                    }
+                    else
+                    {
+                        item.Opacity = (item.Value - minValue) / (maxValue - minValue);
+                    }
+
+                }
+
+                
+
+                items.Add(item);
+
+            }
+
+            return View("RenderMap", new RenderMapModel(mapName, dataSetName, statisticName, items) { Map = map, DataSet = dataSet } );
+        }
 
     }
 }

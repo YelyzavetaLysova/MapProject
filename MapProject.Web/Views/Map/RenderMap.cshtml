@@ -1,4 +1,6 @@
 ﻿@using MapProject.Web.Models;
+@using MapProject.Web.Components;
+
 @model RenderMapModel
 
 
@@ -27,7 +29,6 @@
     <div id="currentMapName" hidden>@Model.Map.Name</div>
     <div id="currentDataSet" hidden>@dataSetId</div>
     <div id="currentRegionId" hidden></div>
-    @*<div id="jsonDataSet" hidden>@Model.JsonDataSet</div>*@
 
     <div class="row">
 
@@ -37,18 +38,74 @@
 
                 <div class="alert alert-primary">Current map - <b>@Model.Map.Name</b></div>
 
-                
+                <div>
 
-                @{
+                    @{
+                        if (!String.IsNullOrEmpty(Model.DataSetName))
+                        {
+                            <div class="alert alert-primary">Current dataset - <b>@Model.DataSetName</b></div>
 
-                    await Html.RenderPartialAsync("ManageDataSet", new ManageDataSetModel() { MapName = Model.Map.Name, DataSetName = dataSetId, DataSets = Model.DataSetNames });
-                }
+                            <a class="btn btn-sm btn-primary" href="/Map/CloseDataSet?mapName=@Model.MapName">Close dataset</a>
+                            <a class="btn btn-sm btn-danger" href="/Map/DeleteDataSet?mapName=@Model.MapName&dataSetName=@Model.DataSetName">Delete dataset</a>
+                        }
+                        else
+                        {
+
+                            <div class="alert alert-warning">Dataset is not loaded. Please load or create dataset to see or edit the data associated with the regions</div>
+
+                            <div class="row">
+                                <div class="col-6">
+                                    <h5>Load dataset</h5>
+                                    <form id="createNewDataSetForm" asp-controller="Map" asp-action="LoadDataSet" method="post">
+
+                                        <div class="form-group">
+
+                                            <select class="form-control" name="dataSetName">
+                                                @{
+                                                    foreach (var dataSet in Model.DataSetNames)
+                                                    {
+
+                                                        <option>@dataSet</option>
+                                                    }
+                                                }
+                                            </select>
+
+                                            <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+
+                                        </div>
+
+                                        <button class="btn btn-primary btn-sm" type="submit"> Load </button>
+
+                                    </form>
+                                </div>
+                                <div class="col-6">
+                                    <h5>Create new dataset</h5>
+                                    <form id="createNewDataSetForm" asp-controller="Map" asp-action="CreateDataSet" method="post">
+
+                                        <div class="form-group">
+
+                                            <input class="form-control" type="text" name="dataSetName" placeholder="New dataset name here" />
+                                            <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                                        </div>
+
+                                        <button class="btn btn-primary btn-sm" type="submit">Create</button>
+
+                                    </form>
+                                </div>
+                            </div>
+
+                        }
+                    }
+
+
+
+                </div>
 
                 <p></p>
 
                 <div id="regionManagement">
 
-                    @*@Component.InvokeAsync("ManageRegion", new )*@
+                       @await Component.InvokeAsync(ManageRegionViewComponent.Name, Model);
 
                 </div>
 
@@ -82,7 +139,24 @@
                                 points += point.X + "," + point.Y + " ";
                             }
 
-                            <polygon id="@region.Id" points="@points.Remove(points.Length - 1)" fill="white" stroke="black" onclick="regionOnClickHandler(this.id)" />
+                            @{ 
+                                string fill = "white";
+                                double opacity = 1;
+
+                                if (Model.StatisticColorItems != null)
+                                {
+                                    var statisticColorItem = Model.StatisticColorItems.FirstOrDefault(x => x.RegionId == region.Id);
+
+                                    if (statisticColorItem != null)
+                                    {
+                                        fill = statisticColorItem.Color.ToString().Replace("24", String.Empty);
+                                        opacity = statisticColorItem.Opacity;
+                                    }
+                                }
+
+                            }
+
+                            <polygon id="@region.Id" points="@points.Remove(points.Length - 1)" fill="@fill" opacity="@opacity" stroke="black" onclick="regionOnClickHandler(this.id)" />
 
                         </g>
                     }

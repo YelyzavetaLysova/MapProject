@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MapProject.Web.Models
 {
-    public class CompareRegionsModel
+    public class CompareRegionsModel : BaseModel
     {
         public Region Region1
         {
@@ -33,5 +33,12 @@ namespace MapProject.Web.Models
             set;
         }
 
+        public CompareRegionsModel(Region region1, DataItem dataItem1, Region region2, DataItem dataItem2, string mapName, string dataSetName, string regionId) : base(mapName, dataSetName, regionId)
+        {
+            this.Region1 = region1;
+            this.DataItem1 = dataItem1;
+            this.Region2 = region2;
+            this.DataItem2 = dataItem2;
+        }
     }
 }

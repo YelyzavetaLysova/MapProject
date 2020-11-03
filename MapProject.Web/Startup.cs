@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MapProject.Parsing;
+using MapProject.Saving;
+using MapProject.Statistic;
+using MapProject.Statistic.FileSystem;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -24,6 +28,12 @@ namespace MapProject.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            services.AddSingleton(typeof(IStatisticProvider), typeof(JsonFyleSystemStatisticProvider));
+            services.AddTransient(typeof(IMapParser), typeof(MapParser));
+            services.AddSingleton(typeof(IMapProvider), typeof(JsonFileSystemMapProvider));
+
+            services.AddSingleton(typeof(Manager), typeof(Manager));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

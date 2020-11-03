@@ -1,0 +1,30 @@
+﻿@model MapProject.Web.Models.CopmareRegionsPaneModel
+
+<div class="alert alert-info">
+
+    @{
+        if (String.IsNullOrWhiteSpace(Model.FirstRegion) && String.IsNullOrWhiteSpace(Model.FirstRegion))
+        {
+            <p>No regions to compare selected</p>
+        }
+        else
+        {
+            if (!String.IsNullOrWhiteSpace(Model.FirstRegion))
+            {
+                <p>First region: @Model.FirstRegion</p>
+            }
+
+            if (!String.IsNullOrWhiteSpace(Model.SecondRegion))
+            {
+                <p>Second region: @Model.SecondRegion</p>
+            }
+
+
+        }
+    }
+
+
+
+
+
+</div>

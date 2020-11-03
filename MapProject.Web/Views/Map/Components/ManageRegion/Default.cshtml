@@ -1,39 +1,39 @@
-﻿@model MapProject.Web.Models.ManageRegionModel
+﻿@using MapProject.Web.Models
+@using MapProject.Web.Components
+@using MapProject.Web.Controllers
+@model ManageRegionModel
 
-    <div id="regionManagement">
 
-        @{
+<div id="regionManagement">
+
+
+
+    @{
+        if (!String.IsNullOrEmpty(Model.RegionId))
+        {
+
             string regionName = String.IsNullOrWhiteSpace(Model.RegionName) ? "[" + Model.RegionId + "]" : Model.RegionName + " [" + Model.RegionId + "]";
-        }
 
-        <div class="alert alert-primary">Current region - <b>@regionName</b></div>
+            <div class="alert alert-primary">Current region - <b>@regionName</b></div>
 
-        <div id="regionsToCompare">
-
-            @Html.Partial("CompareRegionsPane");
-
-        </div>
-
-        @{
-
-            if (String.IsNullOrWhiteSpace(Model.DataSetName))
+            if (String.IsNullOrEmpty(Model.DataSetName) || Model.DataItem == null)
             {
-
-                <div class="alert alert-danger">Dataset is not loaded. Please load dataset to see the data associated with the region</div>
+                <div class="alert alert-danger">Dataset is not loaded.Please load dataset to see the data associated with the region</div>
             }
             else
             {
 
-                if (!String.IsNullOrWhiteSpace(Model.ReferencedMapName))
+                <div id="regionsToCompare">
+
+                    @await Component.InvokeAsync(CompareRegionsPaneViewComponent.Name, new CopmareRegionsPaneModel(MapContext.FirstRegionId, MapContext.SecondRegionId, Model))
+
+                </div>
+
+                if (!String.IsNullOrWhiteSpace(Model.ReferencedMap))
                 {
-                    <div class="alert alert-primary">Current region has referenced map assigned - <a href="/Map/RenderMap?mapName=@Model.ReferencedMapName" target="_blank">@Model.ReferencedMapName</a></div>
+
+                    <div class="alert alert-primary">Current region has referenced map assigned - <a href="/Map/RenderMap?mapName=@Model.ReferencedMap" target="_blank">@Model.ReferencedMap</a></div>
                 }
-
-                @*<p>
-                    
-
-                </p>*@
-
 
                 <form id="addToCompare" asp-controller="Map" asp-action="AddRegionToCompare" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionsToCompare" method="post">
 
@@ -273,10 +273,14 @@
                 <p></p>
 
 
-                @await Component.InvokeAsync("ManageRegionProperties", Model);
-
+                @await Component.InvokeAsync(ManageRegionPropertiesViewComponent.Name, Model);
 
             }
-        }
 
-    </div>
+
+
+        }
+    }
+
+
+</div>

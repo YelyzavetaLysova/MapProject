@@ -1,13 +1,14 @@
 ﻿using MapProject.Model;
 using MapProject.Statistic;
 using System;
-using System.Collections.Generic;
+using System.Collections.Generic; 
 using System.Linq;
 using System.Threading.Tasks;
+using MapProject.Web.Controllers;
 
 namespace MapProject.Web.Models
 {
-    public class RenderMapModel
+    public class RenderMapModel : BaseModel
     {
         public Map Map
         {
@@ -20,7 +21,6 @@ namespace MapProject.Web.Models
             get;
             set;
         }
-
        
         public List<string> DataSetNames
         {
@@ -28,15 +28,30 @@ namespace MapProject.Web.Models
             set;
         }
 
-        public RenderMapModel(Map map, List<string> dataSetNames, DataSet dataSet)
+        public List<MapController.StatisticColorItem> StatisticColorItems
+        {
+            get;
+            set;
+        }
+
+        public string PropertyName
+        {
+            get;
+            set;
+        }
+
+        public RenderMapModel(Map map, List<string> dataSetNames, DataSet dataSet, string regionId) : base(map.Name, dataSet == null ? null : dataSet.Key, regionId)
         {
             this.DataSet = dataSet;
             this.Map = map;
             this.DataSetNames = dataSetNames;
         }
 
-        public RenderMapModel()
+        public RenderMapModel(string mapName, string dataSetName, string propertyName, List<MapController.StatisticColorItem> items) : base(mapName, dataSetName, null)
         {
+            this.StatisticColorItems = items;
+            this.PropertyName = propertyName;
+            this.StatisticColorItems = items;
         }
     }
 }
