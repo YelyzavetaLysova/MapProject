@@ -13,6 +13,16 @@ namespace MapProject.Web.Controllers
             return this.View();
         }
 
+        public IActionResult Information()
+        {
+            return this.View();
+        }
+
+        public IActionResult Theorie()
+        {
+            return this.View();
+        }
+
         public IActionResult DoSmth()
         {
             return this.View();

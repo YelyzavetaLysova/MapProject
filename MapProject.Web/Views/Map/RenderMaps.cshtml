@@ -1,17 +1,29 @@
 ﻿@model IEnumerable<string>
+@using MapProject.Web.Models;
 @{
-    ViewBag.Title = "MapProject - List of maps";
+    ViewBag.Title = "MapProject - Manage Maps";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    
 }
 
-    <div class="row" id="renderMapsLabel">
+    <head>
+        <link href="~/css/indexPage.css" rel="stylesheet" />
+    </head>
 
-        @foreach (string map in Model)
-         {
-            <a href="/Map/RenderMap?mapName=@map">@map</a>
+<div id="createMapsForm" class="h4">
 
-         }
+    @await Html.PartialAsync("CreateMap", (CreateMapModel)null)
 
-    </div>
+</div>
+
+<div class="row" id="renderMapsLabel class=" list-group"">
+
+    @foreach (string map in Model)
+    {
+        <a class="list-group-item active extra-margin-left h5" href="/Map/RenderMap?mapName=@map">@map</a>
+
+    }
+
+</div>
 
 

@@ -33,7 +33,7 @@ namespace MapProject.Web.Models
             set;
         }
 
-        public CompareRegionsModel(Region region1, DataItem dataItem1, Region region2, DataItem dataItem2, string mapName, string dataSetName, string regionId) : base(mapName, dataSetName, regionId)
+        public CompareRegionsModel(Region region1, DataItem dataItem1, Region region2, DataItem dataItem2, string mapName, string dataSetName) : base(mapName, dataSetName, null)
         {
             this.Region1 = region1;
             this.DataItem1 = dataItem1;

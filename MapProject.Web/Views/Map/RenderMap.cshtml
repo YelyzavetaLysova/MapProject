@@ -5,7 +5,7 @@
 
 
 @{
-    ViewBag.Title = "MapProject - " + Model.Map.Name;
+    ViewBag.Title = "MapProject - " + (Model.Map == null ? "оберіть карту" : Model.Map.Name);
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -16,17 +16,26 @@
     string currentDataSet = Model.DataSet == null ? "Data set is not loaded" : Model.DataSet.Key;
     bool dataSetNull = this.Model.DataSet == null;
     string dataSetId = Model.DataSet == null ? String.Empty : Model.DataSet.Key;
+    string mapName = Model.Map == null ? null : Model.Map.Name;
+
+    int maxX = Model.Map == null ? 0 : Model.Map.Regions.Max(x => x.Points.Max(y => y.X));
+    int maxY = Model.Map == null ? 0 : Model.Map.Regions.Max(x => x.Points.Max(y => y.Y));
 
 
-    int maxX = Model.Map.Regions.Max(x => x.Points.Max(y => y.X));
-    int maxY = Model.Map.Regions.Max(x => x.Points.Max(y => y.Y));
+    int scalePaneSize = 60;
+    int scalPaneElementSize = 50;
+    int scalePaneLabelSize = 50;
+
+    int svgSizeY = maxY + scalePaneSize + scalePaneLabelSize;
+
+    int relevantRegionsCount = 0;
 }
 
 
 
 <div class="container-fluid">
 
-    <div id="currentMapName" hidden>@Model.Map.Name</div>
+    <div id="currentMapName" hidden>@mapName</div>
     <div id="currentDataSet" hidden>@dataSetId</div>
     <div id="currentRegionId" hidden></div>
 
@@ -35,78 +44,111 @@
         <nav id="sidebarMenu" class="col-3 d-md-block bg-light sidebar collapse">
             <div class="sidebar-sticky pt-3">
 
-                <div class="alert alert-primary">Current map - <b>@Model.Map.Name</b></div>
 
-                <div>
+                @{
+                    if (Model.Map == null)
+                    {
+                        <p class="alert alert-info">Карта не завантажена. Будь ласка оберіть карту:</p>
 
-                    @{
-                        if (!String.IsNullOrEmpty(Model.DataSetName))
+                        @foreach (string map in Model.Maps)
                         {
-                            <div class="alert alert-primary">Current dataset - <b>@Model.DataSetName</b></div>
-
-                            <a class="btn btn-sm btn-primary" href="/Map/CloseDataSet?mapName=@Model.MapName">Close dataset</a>
-                            <a class="btn btn-sm btn-danger" href="/Map/DeleteDataSet?mapName=@Model.MapName&dataSetName=@Model.DataSetName">Delete dataset</a>
-                        }
-                        else
-                        {
-
-                            <div class="alert alert-warning">Dataset is not loaded. Please load or create dataset to see or edit the data associated with the regions</div>
-
-                            <div class="row">
-                                <div class="col-6">
-                                    <h5>Load dataset</h5>
-                                    <form id="createNewDataSetForm" asp-controller="Map" asp-action="LoadDataSet" method="post">
-
-                                        <div class="form-group">
-
-                                            <select class="form-control" name="dataSetName">
-                                                @{
-                                                    foreach (var dataSet in Model.DataSetNames)
-                                                    {
-
-                                                        <option>@dataSet</option>
-                                                    }
-                                                }
-                                            </select>
-
-                                            <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
-
-                                        </div>
-
-                                        <button class="btn btn-primary btn-sm" type="submit"> Load </button>
-
-                                    </form>
-                                </div>
-                                <div class="col-6">
-                                    <h5>Create new dataset</h5>
-                                    <form id="createNewDataSetForm" asp-controller="Map" asp-action="CreateDataSet" method="post">
-
-                                        <div class="form-group">
-
-                                            <input class="form-control" type="text" name="dataSetName" placeholder="New dataset name here" />
-                                            <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
-                                        </div>
-
-                                        <button class="btn btn-primary btn-sm" type="submit">Create</button>
-
-                                    </form>
-                                </div>
-                            </div>
+                            <a class="list-group-item active extra-margin-left h5" href="/Map/RenderMap?mapName=@map">@map</a>
 
                         }
+
+                        <p class="alert alert-info">або створіть нову карту:</p>
+
+
+                        CreateMapModel createMapModel = null;
+
+                        <div id="createMapsForm">
+                            @await Html.PartialAsync("CreateMap", createMapModel)
+                        </div>
                     }
+                    else
+                    {
+                        <div class="alert alert-primary">Поточна карта - <b>@Model.Map.Name</b></div>
+
+                        <a class="btn btn-sm btn-primary" href="/Map/RenderMaps">Закрити карту</a>
+
+                        <p />
+
+                        <div>
+
+                            @{
+                                if (!String.IsNullOrEmpty(Model.DataSetName))
+                                {
+                                    <div class="alert alert-primary">Поточний набір даних - <b>@Model.DataSetName</b></div>
+
+                                    <a class="btn btn-sm btn-primary" href="/Map/CloseDataSet?mapName=@Model.MapName">Закрити набір даних</a>
+                                    <a class="btn btn-sm btn-danger" href="/Map/DeleteDataSet?mapName=@Model.MapName&dataSetName=@Model.DataSetName">Видалити набір даних</a>
+                                    <a class="btn btn-sm btn-primary" id="saveMapButton" download>Зберегти карту</a>
+                                }
+                                else
+                                {
+
+                                    <div class="alert alert-warning">Набір даних не завантажено. Будь ласка завантажте набір даних для перегляду інформації, пов'язаної з поточним регіоном</div>
+
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <h5>Завантажити набір даних</h5>
+
+                                            <form id="createNewDataSetForm" asp-controller="Map" asp-action="LoadDataSet" method="post">
+
+                                                <div class="form-group">
+
+                                                    <select class="form-control" name="dataSetName">
+                                                        @{
+                                                            foreach (var dataSet in Model.DataSetNames)
+                                                            {
+
+                                                                <option>@dataSet</option>
+                                                            }
+                                                        }
+                                                    </select>
+
+                                                    <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+
+                                                </div>
+
+                                                <button class="btn btn-primary btn-sm" type="submit"> Завантажити </button>
+
+                                            </form>
+                                        </div>
+                                        <div class="col-6">
+                                            <h5>Створити набір даних</h5>
+                                            <form id="createNewDataSetForm" asp-controller="Map" asp-action="CreateDataSet" method="post">
+
+                                                <div class="form-group">
+
+                                                    <input class="form-control" type="text" name="dataSetName" placeholder="Введіть назву набору даних" />
+                                                    <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
+                                                </div>
+
+                                                <button class="btn btn-primary btn-sm" type="submit">Створити</button>
+
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                }
+                            }
 
 
 
-                </div>
+                        </div>
 
-                <p></p>
+                        <p></p>
 
-                <div id="regionManagement">
+                        <div id="regionManagement">
 
-                       @await Component.InvokeAsync(ManageRegionViewComponent.Name, Model)
+                            @await Component.InvokeAsync(ManageRegionViewComponent.Name, Model)
 
-                </div>
+                        </div>
+                    }
+                }
+
+
 
             </div>
         </nav>
@@ -114,7 +156,7 @@
 
 
     <main class="main-rendermap">
-        
+
         <div class="row">
 
             <div class="col-3"></div>
@@ -124,50 +166,113 @@
 
                     @*<svg height="300px" width="300px">*@
 
-                    <svg height="@maxY" width="@maxX">
+                    <svg id="mapSvg" height="@svgSizeY" width="@maxX">
                         @{
-
-                            foreach (var region in Model.Map.Regions)
+                            if (Model.Map != null)
                             {
 
-                                <g>
-                                    @{
+                                foreach (var region in Model.Map.Regions)
+                                {
 
-                                        string points = String.Empty;
-                                    }
+                                    <g>
+                                        @{
 
-                                    @for (int i = 0; i < region.Points.Count; i++)
-                                    {
-
-                                        var point = region.Points[i];
-
-                                        points += point.X + "," + point.Y + " ";
-                                    }
-
-                                    @{
-                                        string fill = "white";
-                                        double opacity = 1;
-
-                                        if (Model.StatisticColorItems != null)
-                                        {
-                                            var statisticColorItem = Model.StatisticColorItems.FirstOrDefault(x => x.RegionId == region.Id);
-
-                                            if (statisticColorItem != null)
-                                            {
-                                                fill = statisticColorItem.Color.ToString().Replace("24", String.Empty);
-                                                opacity = statisticColorItem.Opacity;
-                                            }
+                                            string points = String.Empty;
                                         }
 
-                                    }
+                                        @for (int i = 0; i < region.Points.Count; i++)
+                                        {
+                                            var point = region.Points[i];
 
-                                    <polygon id="@region.Id" points="@points.Remove(points.Length - 1)" fill="@fill" opacity="@opacity" stroke="black" onclick="regionOnClickHandler(this.id)" />
+                                            points += point.X + "," + point.Y + " ";
+                                        }
+                                        @{
+                                            string fill = "white";
+                                            double opacity = 1;
 
-                                </g>
+                                            if (Model.StatisticColorItems != null)
+                                            {
+                                                var statisticColorItem = Model.StatisticColorItems.FirstOrDefault(x => x.RegionId == region.Id);
+
+                                                if (statisticColorItem != null)
+                                                {
+                                                    fill = statisticColorItem.Color.ToString().Replace("24", String.Empty);
+                                                    opacity = statisticColorItem.Opacity;
+                                                }
+
+                                                relevantRegionsCount++;
+                                            }
+                                        }
+                                        <polygon id="@region.Id" points="@points.Remove(points.Length - 1)" fill="@fill"
+                                                 stroke-opacity="1" fill-opacity="@opacity" stroke="black" onclick="regionOnClickHandler(this.id)" />
+                                    </g>
+                                }
+
                             }
 
 
                         }
+
+                        @if (Model.StatisticColorItems != null)
+                        {
+
+                            <g>
+
+
+
+                                <g>
+
+                                    @{
+
+                                        var items = Model.StatisticColorItems.Where(x => x.HasData != false);
+                                        int x = 0;
+                                        int y = svgSizeY - scalPaneElementSize;
+                                        int width = maxX / items.Count();
+                                        int height = scalPaneElementSize - 30;
+
+                                        int labelY = maxY + scalePaneLabelSize;
+
+                                        int p = 0;
+
+                                        <g>
+                                            <text font-size="26" y="@labelY">Статистика - @Model.PropertyName</text>
+                                        </g>
+
+                                        foreach (var statisticColorItem in items.OrderBy(x => x.Opacity))
+                                        {
+
+                                            //var statisticColorItem = Model.StatisticColorItems.FirstOrDefault(x => x.RegionId == region.Id);
+
+                                            p++;
+
+                                            string fill = statisticColorItem.Color.ToString().Replace("24", String.Empty);
+                                            double opacity = statisticColorItem.Opacity;
+
+
+                                            <g>
+                                                <rect fill-opacity="@opacity" x="@x" y="@y" fill="@fill" width="@width" height="@height">
+                                                    <title>@statisticColorItem.Value</title>
+                                                </rect>
+                                                @if ((p % 3 == 0 || p == 1 || p == items.Count()) && (p != items.Count() - 1))
+                                                {
+                                                    <g>
+                                                        <text x="@(x + 3)" y="@(y + height - 3)" font-size="18" fill="black">@statisticColorItem.Value</text>
+                                                    </g>
+                                                }
+                                            </g>
+
+
+
+
+                                            x = x + width + 1;
+
+                                        }
+                                    }
+
+                                </g>
+                            </g>
+                        }
+
                     </svg>
 
                 </div>
@@ -176,13 +281,16 @@
 
         </div>
 
-       
+
     </main>
 
 
 </div>
 
 <script src="~/js/mapProject.js"></script>
+
+
+<script>RenderSaveMapLink();</script>
 
 
 

@@ -37,7 +37,7 @@ namespace MapProject.Web.Components
             }
 
             var firstDataItem = dataSet.GetDataItem(MapContext.FirstRegionId);
-            var secondDataItem = dataSet.GetDataItem(MapContext.FirstRegionId);
+            var secondDataItem = dataSet.GetDataItem(MapContext.SecondRegionId);
 
             var firstNameProperty = firstDataItem == null ? null : firstDataItem.GetProperty(Strings.NamePropertyKey);
             var secondNameProperty = secondDataItem == null ? null : secondDataItem.GetProperty(Strings.NamePropertyKey);

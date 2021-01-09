@@ -6,6 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Helpers\**" />
+    <EmbeddedResource Remove="Helpers\**" />
+    <None Remove="Helpers\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Statistic\Attachment.cs" />
     <Compile Remove="Statistic\Property.cs" />
     <Compile Remove="Statistic\Statistic.cs" />

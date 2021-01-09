@@ -3,20 +3,20 @@
 <div class="alert alert-info">
 
     @{
-        if (String.IsNullOrWhiteSpace(Model.FirstRegion) && String.IsNullOrWhiteSpace(Model.FirstRegion))
+        if (String.IsNullOrWhiteSpace(Model.FirstRegion) && String.IsNullOrWhiteSpace(Model.SecondRegion))
         {
-            <p>No regions to compare selected</p>
+            <p>Не обрано регіонів для порівняння</p>
         }
         else
         {
             if (!String.IsNullOrWhiteSpace(Model.FirstRegion))
             {
-                <p>First region: @Model.FirstRegion</p>
+                <p>Перший регіон - [@Model.FirstRegion]</p>
             }
 
             if (!String.IsNullOrWhiteSpace(Model.SecondRegion))
             {
-                <p>Second region: @Model.SecondRegion</p>
+                <p>Другий регіон - [@Model.SecondRegion]</p>
             }
 
 

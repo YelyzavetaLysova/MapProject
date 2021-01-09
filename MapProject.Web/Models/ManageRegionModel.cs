@@ -19,7 +19,7 @@ namespace MapProject.Web.Models
             get;
             set;
         }
-        public string ReferencedMap
+        public List<string> ReferencedMaps
         {
             get;
             set;
@@ -37,11 +37,11 @@ namespace MapProject.Web.Models
             set;
         }
 
-        public ManageRegionModel(string regionName, string regionDescription, string referencedMap, DataItem dataItem, List<string> maps, BaseModel baseModel) : base(baseModel)
+        public ManageRegionModel(string regionName, string regionDescription, List<string> referencedMaps, DataItem dataItem, List<string> maps, BaseModel baseModel) : base(baseModel)
         {
             this.RegionName = regionName;
             this.RegionDescription = regionDescription;
-            this.ReferencedMap = referencedMap;
+            this.ReferencedMaps = referencedMaps;
             this.DataItem = dataItem;
             this.Maps = maps;
         }

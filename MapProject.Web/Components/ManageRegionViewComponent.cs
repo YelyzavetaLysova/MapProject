@@ -47,7 +47,7 @@ namespace MapProject.Web.Components
 
             string regionName = String.Empty;
             string regionDescription = String.Empty;
-            string referencedMap = String.Empty;
+            List<string> referencedMaps = new List<string>();
 
             if (dataSet != null)
             {
@@ -64,7 +64,8 @@ namespace MapProject.Web.Components
 
                 var nameProperty = dataItem.GetProperty(Strings.NamePropertyKey);
                 var descriptionProperty = dataItem.GetProperty(Strings.DescriptionPropertyKey);
-                var referencedMapProperty = dataItem.GetProperty(Strings.ReferencedMapKey);
+                
+                referencedMaps = dataItem.Properties.Where(x => x.Name.Contains(Strings.ReferencedMapKey)).Select(x => x.Value).ToList();
 
                 if (nameProperty != null)
                 {
@@ -76,18 +77,13 @@ namespace MapProject.Web.Components
                     regionDescription = descriptionProperty.Value;
                 }
 
-                if (referencedMapProperty != null)
-                {
-                    referencedMap = referencedMapProperty.Value;
-                }
-
             }
 
             var maps = this._manager.GetMaps();
 
             maps.RemoveAll(x => x == mapName);
 
-            return View(new ManageRegionModel(regionName, regionDescription, referencedMap, dataItem, maps, model));
+            return View(new ManageRegionModel(regionName, regionDescription, referencedMaps, dataItem, maps, model));
         }
     }
 }

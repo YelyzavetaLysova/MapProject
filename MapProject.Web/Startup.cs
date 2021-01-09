@@ -34,6 +34,7 @@ namespace MapProject.Web
             services.AddSingleton(typeof(IMapProvider), typeof(JsonFileSystemMapProvider));
 
             services.AddSingleton(typeof(Manager), typeof(Manager));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

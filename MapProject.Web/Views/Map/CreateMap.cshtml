@@ -1,35 +1,35 @@
 ﻿@model MapProject.Web.Models.CreateMapModel
-@{
-    ViewData["Title"] = "CreateMap";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
 
-<div class="row" id="createMapsForm">
-
-    <h1>CreateMap</h1>
 
     @{
         if (Model == null)
         {
-            <form asp-controller="Map" asp-action="CreateMap" method="post" enctype="multipart/form-data">
+            <form asp-controller="Map" asp-action="CreateMap" method="post" enctype="multipart/form-data" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#createMapsForm">
 
-                <input type="file" name="mapImageFile" />
-                <button type="submit">Upload File</button>
+                <h2>Створити карту</h2>
 
+                <div class="form-group h3">
+
+                        <p><input type="file" name="mapImageFile" /></p>
+                    <button type="submit" class="btn btn-primary btn-sm h4">Завантажити файл</button>
+                </div>
             </form>
 
         }
         else
         {
-            <div>File uploaded - @Model.FileName</div>
 
-            <form asp-controller="Map" asp-action="ParseMapFromImage" method="post" enctype="multipart/form-data">
+            <form asp-controller="Map" asp-action="ParseMapFromImage" method="post">
 
-                <input type="text" name="imageFilePath" value="@Model.FilePath" hidden />
-                <button type="submit">Parse map</button>
 
+                <h4>Створити карту</h4>
+
+                <h5 class="h4">Файл завантажено - @Model.FileName</h5>
+
+                <div class="form-group h4">
+                    <input class="form-control" type="text" name="imageFilePath" value="@Model.FilePath" hidden />
+                    <button type="submit" class="btn btn-primary btn-sm h3">Обробити карту</button>
+                </div>
             </form>
         }
     }
-
-    </div>

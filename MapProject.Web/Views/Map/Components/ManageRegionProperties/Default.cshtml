@@ -15,7 +15,7 @@
                     {
                         <div id="regionProperties">
 
-                            <h5>Properties:</h5>
+                            <h4 style="margin-top: 4px">Якості:</h4>
 
                             @foreach (var property in Model.DataItem.Properties)
                             {
@@ -27,7 +27,7 @@
 
                         <div id="regionStatistics">
 
-                            <h5>Statistics:</h5>
+                            <h4 style="margin-top: 4px">Статистика:</h4>
 
                             @foreach (var property in Model.DataItem.Statistics)
                             {
@@ -35,12 +35,12 @@
                                 <p><div type="statistic" class="alert alert-info statistic" onclick="dataPropertyClick($(this), true)" name="@property.Name">@property.Name: @property.Value</div></p>
                                 <form id="addToCompare" asp-controller="Map" asp-action="DrawStatistic" method="post">
 
-                                    <input type="color" name="color" />
+                                    <input type="color" name="color" value="#23d0eb" />
                                     <input type="text" name="statisticName" value="@property.Name" hidden />
                                     <input type="text" name="dataSetName" value="@Model.DataSetName" hidden />
                                     <input type="text" name="mapName" value="@Model.MapName" hidden />
 
-                                    <button type="submit" formtarget="_blank">Draw</button>
+                                    <button type="submit" formtarget="_blank">Відобразити статистику</button>
 
                                 </form>
                             }
@@ -49,7 +49,7 @@
 
                         <div id="regionAttachments">
 
-                            <h5>Attachments:</h5>
+                            <h4 style="margin-top: 4px">Прикріплення:</h4>
 
                             @foreach (var property in Model.DataItem.Attachments)
                             {

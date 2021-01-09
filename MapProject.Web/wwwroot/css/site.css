@@ -121,9 +121,17 @@
     padding: 100px;
 }
 
-#createMapsForm {
-    padding: 170px;
+.alert {
+
+    font-size:20px;
 }
+
+.btn{
+    font-size: 20px;
+    margin-top: 4px;
+}
+
+
 
 
 

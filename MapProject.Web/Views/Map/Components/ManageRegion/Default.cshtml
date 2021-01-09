@@ -4,7 +4,7 @@
 @model ManageRegionModel
 
 
-<div id="regionManagement">
+<div>
 
 
 
@@ -14,11 +14,12 @@
 
             string regionName = String.IsNullOrWhiteSpace(Model.RegionName) ? "[" + Model.RegionId + "]" : Model.RegionName + " [" + Model.RegionId + "]";
 
-            <div class="alert alert-primary">Current region - <b>@regionName</b></div>
+            
+            <div class="alert alert-primary">Поточний регіон - <b>@regionName</b></div>
 
             if (String.IsNullOrEmpty(Model.DataSetName) || Model.DataItem == null)
             {
-                <div class="alert alert-danger">Dataset is not loaded.Please load dataset to see the data associated with the region</div>
+                <div class="alert alert-danger">Набір даних не заватажено. Будь ласка завантажте набір даних для перегляду інформації, пов'язаної з поточним регіоном</div>
             }
             else
             {
@@ -29,10 +30,19 @@
 
                 </div>
 
-                if (!String.IsNullOrWhiteSpace(Model.ReferencedMap))
+                if (Model.ReferencedMaps.Count() != 0)
                 {
 
-                    <div class="alert alert-primary">Current region has referenced map assigned - <a href="/Map/RenderMap?mapName=@Model.ReferencedMap" target="_blank">@Model.ReferencedMap</a></div>
+                    <div class="alert alert-primary">
+                        Поточний регіон має пов’язані карти:
+
+                        @foreach (var refMap in Model.ReferencedMaps)
+                        {
+                            <a href="/Map/RenderMap?mapName=@refMap" target="_blank">@refMap</a>
+
+                        }
+                    </div>
+
                 }
 
                 <form id="addToCompare" asp-controller="Map" asp-action="AddRegionToCompare" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionsToCompare" method="post">
@@ -41,13 +51,19 @@
                     <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
                     <input class="form-control" type="text" name="regionToCompare" value="@Model.RegionId" hidden />
 
-                    <button class="btn btn-sm btn-primary" type="submit">Add to compare list</button>
+                    <button class="btn btn-sm btn-primary" type="submit">Додати до порівняння</button>
+
+                    <a class="btn btn-sm btn-danger" href="/Map/CompareRegions?mapName=@Model.MapName&dataSetName=@Model.DataSetName" target="_blank">Порівняти</a>
 
                     <a class="btn btn-primary btn-sm" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                        Manage Properties
+                        Управління інформацією
                     </a>
 
                 </form>
+
+
+
+
 
                 <div class="collapse" id="collapseExample">
 
@@ -57,18 +73,18 @@
                         <div class="col-6">
                             <form id="createNewPropertyForm" asp-controller="Map" asp-action="SaveProperty" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
 
-                                <h5>UPSERT property</h5>
+                                <h5>Змінити чи встановити якість</h5>
 
                                 <div class="form-group">
 
-                                    <input class="form-control" type="text" name="propertyName" placeholder="Enter property name" />
-                                    <input class="form-control" type="text" name="propertyValue" placeholder="Enter property value" />
+                                    <input class="form-control" type="text" name="propertyName" placeholder="Введіть назву якості" />
+                                    <input class="form-control" type="text" name="propertyValue" placeholder="Введіть значення якості" />
                                     <input class="form-control" type="text" name="dataSetKey" value="@Model.DataSetName" hidden />
                                     <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
                                     <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
 
 
-                                    <button class="btn btn-sm btn-primary" type="submit">Save</button>
+                                    <button class="btn btn-sm btn-primary" type="submit">Зберігти</button>
 
                                 </div>
 
@@ -78,17 +94,17 @@
                         <div class="col-6">
                             <form id="createNewStatisticForm" asp-controller="Map" asp-action="SaveStatistic" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
 
-                                <h5>UPSERT statistic</h5>
+                                <h5>Змінити чи встановити статистику</h5>
 
                                 <div class="form-group">
 
-                                    <input class="form-control" type="text" name="statisticName" />
-                                    <input class="form-control" type="number" value="0" step="0.1" name="statisticValue" />
+                                    <input class="form-control" type="text" name="statisticName" placeholder="Введіть назву статистики" />
+                                    <input class="form-control" type="number" value="0" step="0.001" name="statisticValue" placeholder="Введіть значення статистики" />
                                     <input class="form-control" type="text" name="dataSetKey" value="@Model.DataSetName" hidden />
                                     <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
                                     <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
 
-                                    <button class="btn btn-sm btn-primary" type="submit">Save</button>
+                                    <button class="btn btn-sm btn-primary" type="submit" data-toggle="tooltip" data-placement="top" title="Updates property value or creates new if does not exist">Зберігти</button>
 
                                 </div>
 
@@ -105,7 +121,7 @@
 
                             <form id="deletePropertyForm" asp-controller="Map" asp-action="ManageDataProperty" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
 
-                                <h5>MANAGE property</h5>
+                                <h5>Управління якостями</h5>
 
                                 <div class="form-group">
 
@@ -124,13 +140,13 @@
                                     <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
                                     <input class="form-control" name="ifStatistic" value="false" hidden />
 
-                                    <input style="margin-bottom:4px;" class="btn btn-sm btn-danger" type="submit" name="toDo" value="Delete" />
-                                    <input style="margin-bottom:4px;" class="btn btn-sm btn-danger" type="submit" name="toDo" value="Delete All" />
-                                    <input style="margin-bottom:4px;" class="btn btn-sm btn-primary" type="submit" name="toDo" value="Expand" />
+                                    <input style="margin-bottom:4px;" class="btn btn-sm btn-danger" type="submit" name="toDo" value="@Strings.DeleteActionString" />
+                                    <input style="margin-bottom:4px;" class="btn btn-sm btn-danger" type="submit" name="toDo" value="@Strings.DeleteAllActionString" />
+                                    <input style="margin-bottom:4px;" class="btn btn-sm btn-primary" type="submit" name="toDo" value="@Strings.ExpandActionString" />
 
                                 </div>
 
-                                
+
 
                             </form>
 
@@ -139,7 +155,7 @@
                         <div class="col-6">
                             <form id="deletePropertyForm" asp-controller="Map" asp-action="ManageDataProperty" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
 
-                                <h5>MANAGE statistic</h5>
+                                <h5>Управління статистикою</h5>
 
                                 <div class="form-group">
 
@@ -158,13 +174,13 @@
                                     <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
                                     <input class="form-control" name="ifStatistic" value="true" hidden />
 
-                                    <input style="margin-bottom:4px;" class="btn btn-sm btn-danger" type="submit" name="toDo" value="Delete" />
-                                    <input style="margin-bottom:4px;" class="btn btn-sm btn-danger" type="submit" name="toDo" value="Delete All" />
-                                    <input style="margin-bottom:4px;" class="btn btn-sm btn-primary" type="submit" name="toDo" value="Expand" />
+                                    <input style="margin-bottom:4px;" class="btn btn-sm btn-danger" type="submit" name="toDo" value="@Strings.DeleteActionString" />
+                                    <input style="margin-bottom:4px;" class="btn btn-sm btn-danger" type="submit" name="toDo" value="@Strings.DeleteAllActionString" />
+                                    <input style="margin-bottom:4px;" class="btn btn-sm btn-primary" type="submit" name="toDo" value="@Strings.ExpandActionString" />
 
                                 </div>
 
-                                
+
 
                             </form>
                         </div>
@@ -178,7 +194,7 @@
                         <div class="col-6">
                             <form asp-controller="Map" asp-action="DeleteAttachment" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
 
-                                <h5>DELETE attachment</h5>
+                                <h5>Видалити прикріплення</h5>
 
                                 <div class="form-group">
 
@@ -195,12 +211,12 @@
                                     <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
                                     <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
                                     <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
-                                    
-                                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+
+                                    <button class="btn btn-sm btn-danger" type="submit">Видалити</button>
 
                                 </div>
 
-                                
+
 
                             </form>
                         </div>
@@ -208,7 +224,7 @@
                         <div class="col-6">
                             <form asp-controller="Map" asp-action="AssignMap" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
 
-                                <h5>ASSIGN map</h5>
+                                <h5>Пов'язати з картою</h5>
 
                                 <div class="form-group">
 
@@ -226,11 +242,11 @@
                                     <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
                                     <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
 
-                                    <button class="btn btn-sm btn-primary" type="submit">Assign</button>
+                                    <button class="btn btn-sm btn-primary" type="submit">Пові'язати</button>
 
                                 </div>
 
-                                
+
 
                             </form>
                         </div>
@@ -244,7 +260,7 @@
                         <div class="col-6">
                             <form asp-controller="Map" asp-action="AddAttachment" method="post" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" enctype="multipart/form-data">
 
-                                <h5>ATTACH file</h5>
+                                <h5>Прикріпіти файл</h5>
 
                                 <div class="form-group">
 
@@ -253,7 +269,7 @@
                                     <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
                                     <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
 
-                                    <button style="margin-top:8px;" class="btn btn-sm btn-primary" type="submit">Upload</button>
+                                    <button style="margin-top:8px;" class="btn btn-sm btn-primary" type="submit">Завантажити</button>
                                 </div>
 
                             </form>
@@ -267,18 +283,18 @@
                         <div class="col-12">
                             <form id="expanadPropertiesForm" asp-controller="Map" asp-action="ExpanadProperties" data-ajax="true" data-ajax-method="post" data-ajax-mode="replace" data-ajax-update="#regionManagement" method="post">
 
-                                <h5>EXPAND properties to all other regions</h5>
+                                <h5>Встановити усі якості та статистику на карті</h5>
 
                                 <div class="form-group">
                                     <input class="form-control" type="text" name="dataSetName" value="@Model.DataSetName" hidden />
                                     <input class="form-control" type="text" name="mapName" value="@Model.MapName" hidden />
                                     <input class="form-control" type="text" name="regionId" value="@Model.RegionId" hidden />
 
-                                    <button class="btn btn-primary btn-sm" id="expanadPropertiesFormSubmit" type="submit">Expand</button>
+                                    <button class="btn btn-primary btn-sm" id="expanadPropertiesFormSubmit" type="submit">Встановити</button>
 
                                 </div>
 
-                                
+
 
                             </form>
                         </div>

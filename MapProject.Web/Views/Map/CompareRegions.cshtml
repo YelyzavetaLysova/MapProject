@@ -5,16 +5,236 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h5>Comparing regions @Model.Region1.Id, @Model.Region2.Id</h5>
+<h5>Регіони, що порівнюються: @Model.Region1.Id, @Model.Region2.Id</h5>
 
-<div class="row">
 
-    <table>
-        <tr>
-            <td>First region:</td>
-            <td>Second region:</td>
-        </tr>
-    </table>
+@{
+    List<string> properties = new List<string>();
+    List<string> statistics = new List<string>();
+
+    foreach (var property in Model.DataItem1.Properties)
+    {
+        properties.Add(property.Name);
+    }
+
+    foreach (var property in Model.DataItem2.Properties)
+    {
+        if (!properties.Contains(property.Name))
+        {
+            properties.Add(property.Name);
+        }
+    }
+
+    foreach (var property in Model.DataItem1.Statistics)
+    {
+        statistics.Add(property.Name);
+    }
+
+    foreach (var property in Model.DataItem2.Statistics)
+    {
+        if (!statistics.Contains(property.Name))
+        {
+            statistics.Add(property.Name);
+        }
+    }
+
+
+}
+
+<div style="margin: 30px; margin-top: 55px;" class="row">
+
+    <div class="col-12">
+
+        <table class="table">
+            <tr style="border-top: 0px !important;">
+                @{
+
+                    string points = String.Empty;
+                    int dx1 = Model.Region1.Points.Min(x => x.X);
+                    int dy1 = Model.Region1.Points.Min(y => y.Y);
+
+                    int dx2 = Model.Region2.Points.Min(x => x.X);
+                    int dy2 = Model.Region2.Points.Min(y => y.Y);
+
+                    int width1 = Model.Region1.Points.Max(x => x.X) - Model.Region1.Points.Min(x => x.X);
+                    int height1 = Model.Region1.Points.Max(x => x.Y) - Model.Region1.Points.Min(x => x.Y);
+
+                    int width2 = Model.Region2.Points.Max(x => x.X) - Model.Region2.Points.Min(x => x.X);
+                    int height2 = Model.Region2.Points.Max(x => x.Y) - Model.Region2.Points.Min(x => x.Y);
+                }
+
+                <td></td>
+                <td style="text-align:center">
+
+
+
+                    <svg height="@height1" width="@width1">
+                        <g>
+
+
+
+
+                            @for (int i = 0; i < Model.Region1.Points.Count; i++)
+                            {
+
+                                var point = Model.Region1.Points[i];
+
+                                points += (point.X - dx1) + "," + (point.Y - dy1) + " ";
+                            }
+
+
+                            
+                            <polygon id="@Model.Region1.Id" points="@points.Remove(points.Length - 1)" stroke="#23d0eb" fill="#23d0eb"/>
+
+                        </g>
+                    </svg>
+                </td>
+                <td style="text-align:center">
+                    <svg height="@height2" width="@width2">
+                        <g>
+                            @{
+
+                                points = String.Empty;
+                            }
+
+                            @for (int i = 0; i < Model.Region2.Points.Count; i++)
+                            {
+
+                                var point = Model.Region2.Points[i];
+
+                                points += (point.X - dx2) + "," + (point.Y - dy2) + " ";
+                            }
+
+
+
+                            <polygon id="@Model.Region2.Id" points="@points.Remove(points.Length - 1)" stroke="#23d0eb" fill="#23d0eb"/>
+
+                        </g>
+                    </svg>
+                </td>
+            </tr>
+
+            @{
+                foreach (var name in properties)
+                {
+                    <tr>
+                        <td>@name</td>
+
+                        @{
+                            var property1 = Model.DataItem1.Properties.FirstOrDefault(x => x.Name == name);
+
+                            if (property1 != null)
+                            {
+                                <td>@property1.Value</td>
+                            }
+                            else
+                            {
+                                <td>   -  </td>
+                            }
+                        }
+
+
+                        @{
+                            var property2 = Model.DataItem2.Properties.FirstOrDefault(x => x.Name == name);
+
+                            if (property2 != null)
+                            {
+                                <td>@property2.Value</td>
+                            }
+                            else
+                            {
+                                <td>   -  </td>
+                            }
+                        }
+
+
+                    </tr>
+                }
+            }
+
+            <tr></tr>
+
+            @{
+                foreach (var name in statistics)
+                {
+                    <tr>
+                        <td>@name</td>
+
+                        @{
+                            var property1 = Model.DataItem1.Statistics.FirstOrDefault(x => x.Name == name);
+                            double value1 = 0;
+
+                            if (property1 != null)
+                            {
+                                value1 = property1.Value;
+                            }
+
+                            var property2 = Model.DataItem2.Statistics.FirstOrDefault(x => x.Name == name);
+                            double value2 = 0;
+
+                            if (property2 != null)
+                            {
+                                value2 = property2.Value;
+                            }
+
+                            string class1 = String.Empty;
+                            string class2 = String.Empty;
+
+                            if (property1 != null && property2 != null)
+                            {
+                                class1 = value1 > value2 ? "table-success" : "table-danger";
+                                class2 = value1 < value2 ? "table-success" : "table-danger";
+
+                                if (value1 == value2)
+                                {
+                                    class1 = "table-warning";
+                                    class2 = "table-warning";
+                                }
+                            }
+
+                            if (property1 != null && property2 == null)
+                            {
+                                class1 = "table-success";
+                            }
+
+                            if (property2 != null && property1 == null)
+                            {
+                                class2 = "table-success";
+                            }
+
+                            if (property1 != null)
+                            {
+
+                                <td class="@class1">@value1</td>
+                            }
+                            else
+                            {
+                                <td>   -  </td>
+                            }
+
+                            if (property2 != null)
+                            {
+
+                                <td class="@class2">@value2</td>
+                            }
+                            else
+                            {
+                                <td>   -  </td>
+                            }
+
+
+
+                        }
+
+
+                    </tr>
+                }
+            }
+        </table>
+
+    </div>
+
+
 
 </div>
 
